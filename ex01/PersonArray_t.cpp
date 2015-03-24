@@ -4,7 +4,7 @@ const size_t PersonArray_t::glob_reallocation_size = 16; // reallocation size is
 
 
 // constructer with default initial size same as glob_reallocation_size (16)
-PersonArray_t::PersonArray_t(size_t initial_size = glob_reallocation_size) : m_num_elements(0), m_capacity(initial_size)
+PersonArray_t::PersonArray_t(size_t initial_size) : m_num_elements(0), m_capacity(initial_size)
 {
 	// init array with initial given size
 	m_array = new const Person_t*[initial_size];
@@ -95,7 +95,7 @@ void PersonArray_t::removeAll()
 void PersonArray_t::removeDeleteAll()
 {
 	//move on all objects in array and call their destructor
-	for (int i=0 ; i < m_num_elements ; i++){
+	for (unsigned int i=0 ; i < m_num_elements ; i++){
 		delete m_array[i];//m_array[i] is a pointer to the i-th Person
 	}
 	
@@ -104,11 +104,11 @@ void PersonArray_t::removeDeleteAll()
 
 int PersonArray_t::append(int index, const Person_t* person){
 
-	if (index<0 || index>m_num_elements) { //check index validity
+	if (index<0 || ((unsigned int)index)>m_num_elements) { //check index validity
 		return 0;
 	}
 
-	else if(index = m_num_elements){//adding an element in the tail is a special case
+	else if(index == m_num_elements){//adding an element in the tail is a special case
 		if (m_num_elements == m_capacity) {//if the array is completely full, increase capacity
 			increaseCapacity();
 		}
@@ -136,7 +136,7 @@ void PersonArray_t::make_space_at_index(int index){
 int PersonArray_t::prepend(int index, const Person_t* person){
 
 	//in all cases prepend(i,person) == append(i-1,person) , only allowed indexes are bit different
-	if (index<1 || index>=m_num_elements) { //check index validity
+	if (index<1 || ((unsigned)index)>=m_num_elements) { //check index validity
 		return 0;
 	}
 	else return append(index-1,person);

@@ -5,7 +5,7 @@ class PersonArray_t
 public:
 	~PersonArray_t();
 	//PersonArray_t();                         // default constructor, initial capacity is glob_reallocation_size
-	PersonArray_t(size_t init_num_persons = 16);  // costructs dynamic array with given minimal number of elements
+	explicit PersonArray_t(size_t initial_size = glob_reallocation_size);  // costructs dynamic array with given minimal number of elements
 
 	size_t getNumElements() const;   // returns the current number of persons in array
 	size_t getCapacity() const;      // returns the current dynamic array capacity

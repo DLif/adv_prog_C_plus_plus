@@ -1,4 +1,5 @@
-#include "Person_t.h"
+//#include "Person_t.h"
+#include "PersonArray_t.h"
 
 size_t Person_t::m_globID = 1;    // init global id to 1
 
@@ -34,6 +35,11 @@ string Person_t::getName() const
 
 int main()
 {
-
+	PersonArray_t *p =new PersonArray_t(1);
+	Person_t &f = Person_t();
+	(*p).insert(&f);
+	(*p).insert(new Person_t());
+	(*p).prepend(1,new Person_t());
+	Person_t *p1 = (*p).find(f);
 	return 0;
 }
