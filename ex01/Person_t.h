@@ -8,14 +8,18 @@ class Person_t
 {
 public:
 
-	~Person_t();           // destructor
+	// ~Person_t();          default destructor will suffice
 	Person_t();            // empty constructor, only inits unique id
-	Person_t(const string &name, int age);   
+	Person_t(const string &name, int age);   // create a new person from given name and age
 	
 	string getName() const;
-	int getAge() const ;
-	size_t getID() const ;
+	int getAge()     const;
+	size_t getID()   const;
 
+	bool operator== (const Person_t& other) const; // compare two persons
+												   // two persons are equal if they have the same id 
+												   // the alternative: comparing by age and name, is not sufficient in our opinion
+												   // since two different people may have the same name and age
 
 private:
 
@@ -24,8 +28,8 @@ private:
 	int				m_age;
 	static size_t	m_globID;  // current global id 
 
-	Person_t(const Person_t& other); // private copy constructor, no copy passing to methods
-	Person_t& operator= (const Person_t& other); // no copying via assignments
+	Person_t(const Person_t& other);             // private copy constructor, no copying
+	Person_t& operator= (const Person_t& other); // no copying via assignments as well
 
 };
 	

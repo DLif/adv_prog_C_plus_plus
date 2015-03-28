@@ -3,6 +3,7 @@
 const size_t PersonArray_t::glob_reallocation_size = 16; // reallocation size is 16 elements
 
 
+// create a new array
 // constructer with default initial size same as glob_reallocation_size (16)
 PersonArray_t::PersonArray_t(size_t initial_size) : m_num_elements(0), m_capacity(initial_size)
 {
@@ -12,7 +13,6 @@ PersonArray_t::PersonArray_t(size_t initial_size) : m_num_elements(0), m_capacit
 
 PersonArray_t::~PersonArray_t()
 {
-
 	// delete the array without deleting the elements themselves
 	delete [] m_array;
 }
@@ -30,7 +30,7 @@ Person_t* PersonArray_t::firstElement() const
 		return NULL;
 	}
 
-	return (Person_t*)this->m_array[0];//why casting needed?
+	return (Person_t*)this->m_array[0];
 }
 
 Person_t* PersonArray_t::lastElement() const
@@ -40,7 +40,7 @@ Person_t* PersonArray_t::lastElement() const
 		// empty array
 		return NULL;
 	}
-	return (Person_t*)(m_array[m_num_elements-1]);//why casting needed?
+	return (Person_t*)(m_array[m_num_elements-1]);
 
 }
 size_t PersonArray_t::getNumElements() const
@@ -50,8 +50,8 @@ size_t PersonArray_t::getNumElements() const
 
 void PersonArray_t::insert(const Person_t* personPtr)
 {
-	// append to end
-	PersonArray_t::append(m_num_elements, personPtr);
+	// append to end (after last element)
+	PersonArray_t::append(m_num_elements - 1, personPtr);
 }
 
 void PersonArray_t::increaseCapacity()
@@ -68,7 +68,7 @@ void PersonArray_t::increaseCapacity()
 		newArr[i] = m_array[i];
 	}
 
-	// delete previous array
+	// delete previous array and set new
 	delete [] m_array;
 	m_array = newArr;
 }
@@ -79,7 +79,7 @@ Person_t* PersonArray_t::find(const Person_t& person) const
 
 	for(size_t i = 0; i < this->m_num_elements; ++i)
 	{
-		if(&person == this->m_array[i])
+		if(person == *(this->m_array[i]))
 		{
 			return (Person_t*)this->m_array[i];
 		}
@@ -89,55 +89,101 @@ Person_t* PersonArray_t::find(const Person_t& person) const
 
 void PersonArray_t::removeAll()
 {
-	m_num_elements = 0; //this means that any pointers left in the array would be treated as junk - we would never access them again and some of them will be overriden as we insert new pointers
+	m_num_elements = 0; //this means that any pointers left in the array would be treated as junk
+						//we would never access them again and some of them will be overriden as we insert new pointers
 }
 
 void PersonArray_t::removeDeleteAll()
 {
-	//move on all objects in array and call their destructor
-	for (unsigned int i=0 ; i < m_num_elements ; i++){
-		delete m_array[i];//m_array[i] is a pointer to the i-th Person
+	//iterate over all objects in array and call their destructor
+	for (size_t i = 0 ; i < m_num_elements ; i++){
+		delete m_array[i]; //m_array[i] is a pointer to the i-th Person
 	}
 	
 	removeAll(); //now that all the objects are destroyed, we can remove the array without "deleting" any objects.
 }
 
-int PersonArray_t::append(int index, const Person_t* person){
 
-	if (index<0 || ((unsigned int)index)>m_num_elements) { //check index validity
+// method appends given person AFTER given index
+// returns 0 on failure (if given index is out of bounds)
+// returns 1 on success
+int PersonArray_t::append(size_t index, const Person_t* person){
+
+	if ( index >= m_num_elements) { // check if index in bounds
 		return 0;
 	}
 
-	else if(index == m_num_elements){//adding an element in the tail is a special case
-		if (m_num_elements == m_capacity) {//if the array is completely full, increase capacity
-			increaseCapacity();
-		}
-		m_array[m_num_elements]= person;//insert new element
-		m_num_elements++;
-		return 1;
+	if (m_num_elements == m_capacity) {
+		// if the array is completely full, increase capacity
+		increaseCapacity();
 	}
 
-	//all cases with valid index that isn't the tail will execute this:
+	if(index == m_num_elements - 1){
 
-	make_space_at_index(index);
-	//now insert the element. becuase we called the make_space_at_index function the insertion at the given index won't reomove any element other from the array.
-	m_array[index]=person;
+		//adding an element after the tail is a special case, no elements need to be pushed
+		m_array[m_num_elements] = person; 
+	}
+	else
+	{
+		// need to push all elements starting at index+1
+		pushAllStartingAt(index + 1);
+		//now insert the element. becuase we called the makeSpaceAtIndex function the insertion at the given index won't reomove any other element from the array.
+		m_array[index + 1] = person;
+	}
+	m_num_elements++;
 	return 1;
 }
 
-void PersonArray_t::make_space_at_index(int index){
-	insert(m_array[m_num_elements-1]);//copy the last element in the array to the tail (one of the copies will be overriden in the next step)
-	//we move each pinter with index j to index j+1, when index<=j<old_m_num_elemnts-1. (old_m_num_elemnts == m_num_elemnts-1 because we inserted the last element twice in the tail).
-	for (int i=m_num_elements-2; i>=index ;i--){ 
+void PersonArray_t::pushAllStartingAt(size_t index){
+
+	// simply push all elements by one slot
+	for (size_t i = m_num_elements-1; i>= index ; i--){ 
 		m_array[i+1] = m_array[i];
 	}
 }
 
-int PersonArray_t::prepend(int index, const Person_t* person){
+// method appends a new element BEFORE given index
+// returns 0 on failure (if given index is out of bounds)
+// returns 1 on success
+int PersonArray_t::prepend(size_t index, const Person_t* person){
 
-	//in all cases prepend(i,person) == append(i-1,person) , only allowed indexes are bit different
-	if (index<1 || ((unsigned)index)>=m_num_elements) { //check index validity
+	// check if index out of bounds
+	if(index >= m_num_elements)
+	{
 		return 0;
 	}
-	else return append(index-1,person);
+
+	if(index == 0)
+	{
+		// special case
+		if (m_num_elements == m_capacity) {
+			// if the array is completely full, increase capacity
+			increaseCapacity();
+		}
+		// need to push all elements by one slot
+		pushAllStartingAt(0);
+		// insert in first place
+		m_array[0] = person;
+		// increase num elements
+		m_num_elements ++ ;
+	}
+
+	else { 
+		// same as appending AFTER index - 1
+		append(index - 1, person);
+	}
+
+	return 1;
+}
+
+
+int main()
+{
+	PersonArray_t arr;
+	Person_t person;
+	arr.insert(&person);
+	arr.insert(new Person_t());
+	arr.prepend(0, new Person_t());
+	Person_t* p1 = arr.find(person);
+	return 0;
 }
