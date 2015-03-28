@@ -18,7 +18,12 @@ static size_t getIndex()
 {
 	size_t index;
 	cout << "\nEnter an index (will be interpreted as size_t)" << endl;
-	cin >> index;
+	if (!(cin >> index))
+	{
+		cout << "\nInvalid input!" << endl;
+		cin.clear();
+		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
 	return index;
 }
 
@@ -73,6 +78,8 @@ int main()
 			}
 			break;
 		case 'F':
+
+			cout << "\Find \n";
 			ptr = getPerson();
 			res = arr.find(*ptr);
 			
@@ -91,6 +98,7 @@ int main()
 			delete ptr;
 			break;
 		case 'r':
+			cout << "\nRemove by value (no delete) \n";
 			ptr = getPerson();
 			res = arr.remove(ptr);
 			if (res == NULL)
@@ -103,6 +111,7 @@ int main()
 				ss << (*res).getID();
 				string id = ss.str();
 				cout << "\nFound and removed (first occurance), ID: " << id << endl;
+				delete res;
 			}
 			delete ptr;
 
@@ -115,6 +124,8 @@ int main()
 			break;
 
 		case 'd':
+
+			cout << "\Remove+delete by value \n";
 			prevCount = arr.getNumElements();
 			ptr = getPerson();
 			cout << "\n removing all occurances (with deleting) ..." << endl;
@@ -123,12 +134,14 @@ int main()
 			delete ptr;
 			break;
 		case 'D':
+	
 			prevCount = arr.getNumElements();
 			cout << "\n Removing all (with deleting) ..." << endl;
 			arr.removeDeleteAll();
 			cout << prevCount - arr.getNumElements() << " elements removed" << endl;
 			break;
 		case 'a':
+			cout << "\nAppend \n";
 			index = getIndex();
 			ptr = getPerson();
 			if (!arr.append(index, ptr))
@@ -140,26 +153,34 @@ int main()
 				cout << "\n Inserting " << ptr->getName() << "at index " << index + 1 << endl;
 
 			}
-			delete ptr;
+			
 			break;
 		case 'p':
+
+			cout << "\nPrepend \n";
 			index = getIndex();
 			ptr = getPerson();
 			
 			if (!arr.prepend(index, ptr))
 			{
-				cout << "\n index is out of bounds!" << endl;
+				cout << "\nindex is out of bounds!" << endl;
 			}
 			else
 			{
-				cout << "\n Inserting " << ptr->getName() << "at index " << index << endl;
+				cout << "\nInserting " << ptr->getName() << " at index " << index << endl;
 			}
-			delete ptr;
+			
 			break;
 		default:
-			cout << "\n Invalid char" << endl;
+			cout << "\nInvalid input" << endl;
+			
 			break;
+		
+
 		}
+		// clear rest of the line 
+		cin.clear();
+		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		
 
 

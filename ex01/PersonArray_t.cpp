@@ -1,6 +1,6 @@
 #include "PersonArray_t.h"
 
-const size_t PersonArray_t::glob_reallocation_size = 16; // reallocation size is 16 elements
+const size_t PersonArray_t::glob_reallocation_size = 2; // reallocation size is 16 elements
 
 
 // create a new array
@@ -197,9 +197,10 @@ int PersonArray_t::append(size_t index, const Person_t* person){
 void PersonArray_t::pushAllStartingAt(size_t index){
 
 	// simply push all elements by one slot
-	for (size_t i = m_num_elements - 1; i >= index; i--){
+	for (size_t i = m_num_elements - 1; i > index; i--){
 		m_array[i + 1] = m_array[i];
 	}
+	m_array[index+1] = m_array[index];
 }
 
 // method appends a new element BEFORE given index
