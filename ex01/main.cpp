@@ -38,7 +38,7 @@ int main()
 	while (cont)
 	{
 
-		cout << "\nnum elements | capacity | insert | first | last | Find | remove | Remove all |\n delete-remove | Delete-remove all | append | prepend" << endl;
+		cout << "\nnum elements | capacity | insert | first | last | Find | remove | Remove all |\n delete-remove | Delete-remove all | append | prepend | Print | quit" << endl;
 
 		char c;
 		cin >> c;
@@ -128,7 +128,7 @@ int main()
 			cout << "\Remove+delete by value \n";
 			prevCount = arr.getNumElements();
 			ptr = getPerson();
-			cout << "\n removing all occurances (with deleting) ..." << endl;
+			cout << "\nremoving all occurances (with deleting) ..." << endl;
 			arr.removeDelete(ptr);
 			cout << prevCount - arr.getNumElements() << " elements removed" << endl;
 			delete ptr;
@@ -136,7 +136,7 @@ int main()
 		case 'D':
 	
 			prevCount = arr.getNumElements();
-			cout << "\n Removing all (with deleting) ..." << endl;
+			cout << "\nRemoving all (with deleting) ..." << endl;
 			arr.removeDeleteAll();
 			cout << prevCount - arr.getNumElements() << " elements removed" << endl;
 			break;
@@ -146,11 +146,11 @@ int main()
 			ptr = getPerson();
 			if (!arr.append(index, ptr))
 			{
-				cout << "\n index is out of bounds!" << endl;
+				cout << "\nindex is out of bounds!" << endl;
 			}
 			else
 			{
-				cout << "\n Inserting " << ptr->getName() << "at index " << index + 1 << endl;
+				cout << "\nInserting " << ptr->getName() << "at index " << index + 1 << endl;
 
 			}
 			
@@ -171,9 +171,14 @@ int main()
 			}
 			
 			break;
+		case 'P':
+			cout << "\n" << arr;
+			break;
+		case 'q':
+			cont = false;
+			break;
 		default:
 			cout << "\nInvalid input" << endl;
-			
 			break;
 		
 
@@ -181,11 +186,9 @@ int main()
 		// clear rest of the line 
 		cin.clear();
 		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		
-
 
 	}
-
-
+	// delete all elements left in array
+	arr.removeDeleteAll();
 
 }

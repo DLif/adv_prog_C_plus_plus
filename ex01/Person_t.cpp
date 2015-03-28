@@ -73,9 +73,9 @@ istream& operator>>(istream& is, Person_t& person)
 
 ostream& operator<<(ostream& os, const Person_t& person)
 {
-	os << "Person ID: " << person.getID() << endl;
-	os << "Name:      " << person.getName() << endl;
-	os << "Age:       " << person.getAge() << endl;
+	os << "ID:		" << person.getID() << endl;
+	os << "Name:	" << person.getName() << endl;
+	os << "Age:		" << person.getAge() << endl;
 
 	return os;
 }

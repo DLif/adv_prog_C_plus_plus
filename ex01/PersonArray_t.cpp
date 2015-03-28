@@ -236,3 +236,24 @@ int PersonArray_t::prepend(size_t index, const Person_t* person){
 
 	return 1;
 }
+
+Person_t* PersonArray_t::elementAt(const size_t index) const
+{
+	if (index >= m_num_elements)
+		return NULL;
+
+	return (Person_t*)m_array[index];
+}
+
+ostream& operator<<(ostream& os, const PersonArray_t& array)
+{
+
+	for (size_t i = 0; i < array.getNumElements(); ++i)
+	{
+		Person_t* elem = array.elementAt(i);
+		os << "[" << i << ": " << elem->getName() << ", Age:" << elem->getAge() << "] " << endl;
+	}
+	os << "Capacity: " << array.getCapacity() << ", num elements: " << array.getNumElements() << endl;
+
+	return os;
+}

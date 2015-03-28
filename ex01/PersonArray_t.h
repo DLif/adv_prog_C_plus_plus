@@ -41,6 +41,9 @@ public:
 															 // if index is out of bounds, returns 0
 													         // on success, returns 1
 
+	Person_t* elementAt(const size_t index) const;           // returns the element at given index
+															 // returns NULL if index is out of bounds
+
 
 private:
 	const Person_t**	m_array;    // array of pointers to persons 
@@ -66,3 +69,6 @@ private:
 												 // and we wish to insert a new element
 
 };
+
+
+extern ostream& operator<<(ostream& os, const PersonArray_t& array); // "To string"
