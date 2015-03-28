@@ -79,7 +79,7 @@ int main()
 			break;
 		case 'F':
 
-			cout << "\Find \n";
+			cout << "\nFind \n";
 			ptr = getPerson();
 			res = arr.find(*ptr);
 			

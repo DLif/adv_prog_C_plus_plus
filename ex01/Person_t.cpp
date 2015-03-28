@@ -52,11 +52,11 @@ istream& operator>>(istream& is, Person_t& person)
 
 	is >> name;
 	person.setName(name);
-	if (!(cin >> age))
+	if (!(is >> age))
 	{
 		cout << "\nInvalid age! age will be set to 0" << endl;
-		cin.clear();
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		is.clear();
+		is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		age = 0;
 	}
 

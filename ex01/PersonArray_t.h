@@ -33,13 +33,13 @@ public:
 	void removeAll();       // empty array without deleting the elements themselves
 	void removeDeleteAll(); // empty array and delete all the elements 
 
-	int append(size_t index, const Person_t* person);  // appends given person after given index
-													   // if index is out of bounds, returns 0
-													   // on success returns 1
+	int append(const size_t index, const Person_t* person);  // appends given person after given index
+													         // if index is out of bounds, returns 0
+													         // on success returns 1
 
-	int prepend(size_t index, const Person_t* person); // prepends given element before given index
-													   // if index is out of bounds, returns 0
-													   // on success, returns 1
+	int prepend(const size_t index, const Person_t* person); // prepends given element before given index
+															 // if index is out of bounds, returns 0
+													         // on success, returns 1
 
 
 private:
@@ -57,10 +57,10 @@ private:
 											// implemeneted by allocating a new array with bigger size
 											// and then moving all elements to the new array
 
-	void pushAllStartingAt(size_t index);    // push all the elements, starting from given index, one slot further (e.g. increase indices of said elements by one)
+	void pushAllStartingAt(const size_t index);    // push all the elements, starting from given index, one slot further (e.g. increase indices of said elements by one)
 											 // effectively "freeing" the slot at given index
 
-	void contractStartingAt(size_t index);   // push all the elements after given index, to the "left" (one index down), removing the element at index
+	void contractStartingAt(const size_t index);   // push all the elements after given index, to the "left" (one index down), removing the element at index
 
 	static const size_t glob_reallocation_size;  // the number of elements that are added to the capacity when an array is full
 												 // and we wish to insert a new element
