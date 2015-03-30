@@ -16,11 +16,11 @@ static Person_t* getPerson()
 
 static size_t getIndex()
 {
-	size_t index;
+	size_t index=0;
 	cout << "\nEnter an index (will be interpreted as size_t)" << endl;
 	if (!(cin >> index))
 	{
-		cout << "\nInvalid input!" << endl;
+		cout << "\nInvalid input! \nWill be set as 0" << endl;
 		cin.clear();
 		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
@@ -42,6 +42,9 @@ int main()
 
 		char c;
 		cin >> c;
+		// clear rest of the line 
+		cin.clear();
+		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		switch (c)
 		{
 		case 'n': 
@@ -150,7 +153,7 @@ int main()
 			}
 			else
 			{
-				cout << "\nInserting " << ptr->getName() << "at index " << index + 1 << endl;
+				cout << "\nInserting " << ptr->getName() << " at index " << index + 1 << endl;
 
 			}
 			
@@ -183,9 +186,6 @@ int main()
 		
 
 		}
-		// clear rest of the line 
-		cin.clear();
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 	}
 	// delete all elements left in array

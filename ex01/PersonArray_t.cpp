@@ -129,7 +129,7 @@ void PersonArray_t::removeDelete(const Person_t* person)
 }
 
 
-void PersonArray_t::contractStartingAt(size_t index)
+void PersonArray_t::contractStartingAt(const size_t index)
 {
 
 	if (index == m_num_elements - 1)
@@ -166,7 +166,7 @@ void PersonArray_t::removeDeleteAll()
 // method appends given person AFTER given index
 // returns 0 on failure (if given index is out of bounds)
 // returns 1 on success
-int PersonArray_t::append(size_t index, const Person_t* person){
+int PersonArray_t::append(const size_t index, const Person_t* person){
 
 	if (index >= m_num_elements) { // check if index in bounds
 		return 0;
@@ -194,7 +194,7 @@ int PersonArray_t::append(size_t index, const Person_t* person){
 	return 1;
 }
 
-void PersonArray_t::pushAllStartingAt(size_t index){
+void PersonArray_t::pushAllStartingAt(const size_t index){
 
 	// simply push all elements by one slot
 	for (size_t i = m_num_elements - 1; i > index; i--){
@@ -206,7 +206,7 @@ void PersonArray_t::pushAllStartingAt(size_t index){
 // method appends a new element BEFORE given index
 // returns 0 on failure (if given index is out of bounds)
 // returns 1 on success
-int PersonArray_t::prepend(size_t index, const Person_t* person){
+int PersonArray_t::prepend(const size_t index, const Person_t* person){
 
 	// check if index out of bounds
 	if (index >= m_num_elements)
