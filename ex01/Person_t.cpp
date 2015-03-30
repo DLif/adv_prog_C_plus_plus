@@ -35,7 +35,7 @@ void Person_t::setAge(int age)
 	this->m_age = age;
 }
 
-void Person_t::setName(string& name)
+void Person_t::setName(const string& name)
 {
 	this->m_name = name;
 }
@@ -43,6 +43,23 @@ void Person_t::setName(string& name)
 bool Person_t::operator==(const Person_t& other) const
 {
 	return this->m_age == other.m_age && this->m_name == other.m_name;
+}
+
+Person_t& Person_t::operator=(const Person_t& other)
+{
+	if (this != &other)
+	{
+		// different person, copy name and age
+		this->m_age = other.m_age;
+		this->m_name = other.m_name;
+	}
+	return *this;
+}
+
+// copy constructor
+Person_t::Person_t(const Person_t& other) : m_id(Person_t::m_globID), m_name(other.m_name), m_age(other.m_age)
+{
+	m_globID++;     // advance global person id
 }
 
 istream& operator>>(istream& is, Person_t& person)
@@ -55,6 +72,7 @@ istream& operator>>(istream& is, Person_t& person)
 	if (!(is >> age))
 	{
 		cout << "\nInvalid age! age will be set to 0" << endl;
+		// clear input line
 		is.clear();
 		is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		age = 0;
@@ -73,9 +91,9 @@ istream& operator>>(istream& is, Person_t& person)
 
 ostream& operator<<(ostream& os, const Person_t& person)
 {
-	os << "ID:		" << person.getID() << endl;
-	os << "Name:	" << person.getName() << endl;
-	os << "Age:		" << person.getAge() << endl;
+	os << "ID:        " << person.getID() << endl;
+	os << "Name:      " << person.getName() << endl;
+	os << "Age:       " << person.getAge() << endl;
 
 	return os;
 }

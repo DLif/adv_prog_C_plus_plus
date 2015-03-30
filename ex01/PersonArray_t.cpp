@@ -1,6 +1,6 @@
 #include "PersonArray_t.h"
 
-const size_t PersonArray_t::glob_reallocation_size = 2; // reallocation size is 16 elements
+const size_t PersonArray_t::glob_reallocation_size = 16; // reallocation size is 16 elements
 
 
 // create a new array
@@ -100,12 +100,12 @@ Person_t* PersonArray_t::find(const Person_t& person) const
 	return NULL;
 }
 
-Person_t* PersonArray_t::remove(const Person_t* person)
+Person_t* PersonArray_t::remove(const Person_t& person)
 {
 
 	for (size_t i = 0; i < m_num_elements; ++i)
 	{
-		if (*person == *(m_array[i]))
+		if (person == *(m_array[i]))
 		{
 			// found person
 			Person_t* res = (Person_t*)m_array[i];
@@ -120,16 +120,16 @@ Person_t* PersonArray_t::remove(const Person_t* person)
 
 }
 
-void PersonArray_t::removeDelete(const Person_t* person)
+void PersonArray_t::removeDelete(const Person_t& person)
 {
 	Person_t* result;
-	while ((result = remove(person)) != NULL ){
+	while ((result = remove(person)) != NULL){
 		delete result;
 	}
 }
 
 
-void PersonArray_t::contractStartingAt(const size_t index)
+void PersonArray_t::contractStartingAt(size_t index)
 {
 
 	if (index == m_num_elements - 1)
@@ -149,7 +149,7 @@ void PersonArray_t::contractStartingAt(const size_t index)
 void PersonArray_t::removeAll()
 {
 	m_num_elements = 0; //this means that any pointers left in the array would be treated as junk
-						//we would never access them again and some of them will be overriden as we insert new pointers
+	//we would never access them again and some of them will be overriden as we insert new pointers
 }
 
 void PersonArray_t::removeDeleteAll()
@@ -166,7 +166,7 @@ void PersonArray_t::removeDeleteAll()
 // method appends given person AFTER given index
 // returns 0 on failure (if given index is out of bounds)
 // returns 1 on success
-int PersonArray_t::append(const size_t index, const Person_t* person){
+int PersonArray_t::append(size_t index, const Person_t* person){
 
 	if (index >= m_num_elements) { // check if index in bounds
 		return 0;
@@ -194,19 +194,19 @@ int PersonArray_t::append(const size_t index, const Person_t* person){
 	return 1;
 }
 
-void PersonArray_t::pushAllStartingAt(const size_t index){
+void PersonArray_t::pushAllStartingAt(size_t index){
 
 	// simply push all elements by one slot
 	for (size_t i = m_num_elements - 1; i > index; i--){
 		m_array[i + 1] = m_array[i];
 	}
-	m_array[index+1] = m_array[index];
+	m_array[index + 1] = m_array[index];
 }
 
 // method appends a new element BEFORE given index
 // returns 0 on failure (if given index is out of bounds)
 // returns 1 on success
-int PersonArray_t::prepend(const size_t index, const Person_t* person){
+int PersonArray_t::prepend(size_t index, const Person_t* person){
 
 	// check if index out of bounds
 	if (index >= m_num_elements)
@@ -237,7 +237,7 @@ int PersonArray_t::prepend(const size_t index, const Person_t* person){
 	return 1;
 }
 
-Person_t* PersonArray_t::elementAt(const size_t index) const
+Person_t* PersonArray_t::elementAt(size_t index) const
 {
 	if (index >= m_num_elements)
 		return NULL;

@@ -16,50 +16,103 @@ static Person_t* getPerson()
 
 static size_t getIndex()
 {
-	size_t index=0;
+	size_t index;
 	cout << "\nEnter an index (will be interpreted as size_t)" << endl;
 	if (!(cin >> index))
 	{
 		cout << "\nInvalid input! \nWill be set as 0" << endl;
-		cin.clear();
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		index = 0;
 	}
+	// clear errors and the rest of the line
+	cin.clear();
+	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	return index;
+}
+
+static size_t getSize()
+{
+	size_t size;
+	cout << "\nEnter a size for the array (will be interpreted as size_t)" << endl;
+	if (!(cin >> size))
+	{
+		cout << "\nInvalid input! \nWill be set as 0" << endl;
+		size = 0;
+	}
+	// clear errors and the rest of the line
+	cin.clear();
+	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	return size;
+}
+
+
+static PersonArray_t* getArray()
+{
+
+	char c;
+	PersonArray_t* arr;
+	cout << "enter D for default initial size capacity or C to insert custom initial size" << endl;
+	cin >> c;
+	// ignore the rest of the line
+	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	switch (c)
+	{
+	case 'D':
+		arr = new PersonArray_t();
+		break;
+	case 'C':
+		arr = new PersonArray_t(getSize());
+		break;
+	default:
+		cout << "Invalid input, program will exit" << endl;
+		arr = NULL;
+
+	}
+
+	// clear errors and the rest of the line
+	
+	return arr;
 }
 
 int main()
 {
-	PersonArray_t arr;
+	PersonArray_t* arr;
 	Person_t* ptr, *res;
 	bool cont = true;
 	size_t prevCount = 0;
 	size_t index;
+	char c;
 
+	arr = getArray();
+	if (arr == NULL)
+	{
+		return 0;
+	}
+	
 	while (cont)
 	{
 
 		cout << "\nnum elements | capacity | insert | first | last | Find | remove | Remove all |\n delete-remove | Delete-remove all | append | prepend | Print | quit" << endl;
 
-		char c;
 		cin >> c;
 		// clear rest of the line 
 		cin.clear();
 		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		switch (c)
 		{
-		case 'n': 
-			cout << "\nNumber of elements in array: " << arr.getNumElements() << endl;
+		case 'n':
+			cout << "\nNumber of elements in array: " << arr->getNumElements() << endl;
 			break;
 		case 'c':
-			cout << "\nArray capacity: " << arr.getCapacity() << endl;
+			cout << "\nArray capacity: " << arr->getCapacity() << endl;
 			break;
 		case 'i':
 			ptr = getPerson();
-			arr.insert(ptr);
+			arr->insert(ptr);
 			break;
 		case 'f':
 
-			ptr = arr.firstElement();
+			ptr = arr->firstElement();
 			if (ptr == NULL)
 			{
 				cout << "\nArray is empty" << endl;
@@ -70,7 +123,7 @@ int main()
 			}
 			break;
 		case 'l':
-			ptr = arr.lastElement();
+			ptr = arr->lastElement();
 			if (ptr == NULL)
 			{
 				cout << "\nArray is empty" << endl;
@@ -84,11 +137,11 @@ int main()
 
 			cout << "\nFind \n";
 			ptr = getPerson();
-			res = arr.find(*ptr);
-			
+			res = arr->find(*ptr);
+
 			if (res == NULL)
 			{
-				cout <<  "\nNot found" << endl;
+				cout << "\nNot found" << endl;
 			}
 			else
 			{
@@ -103,7 +156,7 @@ int main()
 		case 'r':
 			cout << "\nRemove by value (no delete) \n";
 			ptr = getPerson();
-			res = arr.remove(ptr);
+			res = arr->remove(*ptr);
 			if (res == NULL)
 			{
 				cout << "\nNot found" << endl;
@@ -120,34 +173,34 @@ int main()
 
 			break;
 		case 'R':
-			prevCount = arr.getNumElements();
+			prevCount = arr->getNumElements();
 			cout << "\nRemoving all ... " << endl;
-			arr.removeAll();
-			cout << prevCount - arr.getNumElements() << " elements removed" << endl;
+			arr->removeAll();
+			cout << prevCount - arr->getNumElements() << " elements removed" << endl;
 			break;
 
 		case 'd':
 
-			cout << "\Remove+delete by value \n";
-			prevCount = arr.getNumElements();
+			cout << "\nRemove+delete by value \n";
+			prevCount = arr->getNumElements();
 			ptr = getPerson();
 			cout << "\nremoving all occurances (with deleting) ..." << endl;
-			arr.removeDelete(ptr);
-			cout << prevCount - arr.getNumElements() << " elements removed" << endl;
+			arr->removeDelete(*ptr);
+			cout << prevCount - arr->getNumElements() << " elements removed" << endl;
 			delete ptr;
 			break;
 		case 'D':
-	
-			prevCount = arr.getNumElements();
+
+			prevCount = arr->getNumElements();
 			cout << "\nRemoving all (with deleting) ..." << endl;
-			arr.removeDeleteAll();
-			cout << prevCount - arr.getNumElements() << " elements removed" << endl;
+			arr->removeDeleteAll();
+			cout << prevCount - arr->getNumElements() << " elements removed" << endl;
 			break;
 		case 'a':
 			cout << "\nAppend \n";
 			index = getIndex();
 			ptr = getPerson();
-			if (!arr.append(index, ptr))
+			if (!arr->append(index, ptr))
 			{
 				cout << "\nindex is out of bounds!" << endl;
 			}
@@ -156,15 +209,15 @@ int main()
 				cout << "\nInserting " << ptr->getName() << " at index " << index + 1 << endl;
 
 			}
-			
+
 			break;
 		case 'p':
 
 			cout << "\nPrepend \n";
 			index = getIndex();
 			ptr = getPerson();
-			
-			if (!arr.prepend(index, ptr))
+
+			if (!arr->prepend(index, ptr))
 			{
 				cout << "\nindex is out of bounds!" << endl;
 			}
@@ -172,10 +225,10 @@ int main()
 			{
 				cout << "\nInserting " << ptr->getName() << " at index " << index << endl;
 			}
-			
+
 			break;
 		case 'P':
-			cout << "\n" << arr;
+			cout << "\n" << *arr;
 			break;
 		case 'q':
 			cont = false;
@@ -183,12 +236,13 @@ int main()
 		default:
 			cout << "\nInvalid input" << endl;
 			break;
-		
+
 
 		}
 
 	}
 	// delete all elements left in array
-	arr.removeDeleteAll();
+	arr->removeDeleteAll();
+	delete arr;
 
 }
