@@ -10,6 +10,10 @@ static Person_t* getPerson()
 	Person_t* person = new Person_t;
 	cout << "\nEnter a name, followed by an age" << endl;
 	cin >> *person;
+
+	// clear rest of input line and errors
+	cin.clear();
+	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	return person;
 
 }

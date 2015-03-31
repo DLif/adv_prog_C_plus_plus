@@ -69,20 +69,12 @@ istream& operator>>(istream& is, Person_t& person)
 
 	is >> name;
 	person.setName(name);
-	if (!(is >> age))
+	if (!(is >> age) || age < 0)
 	{
 		cout << "\nInvalid age! age will be set to 0" << endl;
-		// clear input line
-		is.clear();
-		is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		age = 0;
 	}
 
-	if (age < 0)
-	{
-		cout << "Invalid age, age will be set to 0" << endl;
-		age = 0;
-	}
 	person.setAge(age);
 	
 	return is;
