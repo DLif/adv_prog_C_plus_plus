@@ -18,10 +18,10 @@ static Person_t* getPerson()
 
 }
 
-static size_t getIndex()
+static size_t getNumber(const string &message)
 {
 	size_t index;
-	cout << "\nEnter an index (will be interpreted as size_t)" << endl;
+	cout << message << endl;
 	if (!(cin >> index))
 	{
 		cout << "\nInvalid input! \nWill be set as 0" << endl;
@@ -33,25 +33,9 @@ static size_t getIndex()
 	return index;
 }
 
-static size_t getSize()
-{
-	size_t size;
-	cout << "\nEnter a size for the array (will be interpreted as size_t)" << endl;
-	if (!(cin >> size))
-	{
-		cout << "\nInvalid input! \nWill be set as 0" << endl;
-		size = 0;
-	}
-	// clear errors and the rest of the line
-	cin.clear();
-	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	return size;
-}
-
-
 static PersonArray_t* getArray()
 {
-
+	string init_arr_size = "\nEnter a size for the array (will be interpreted as size_t)";
 	char c;
 	PersonArray_t* arr;
 	cout << "enter D for default initial size capacity or C to insert custom initial size" << endl;
@@ -65,7 +49,7 @@ static PersonArray_t* getArray()
 		arr = new PersonArray_t();
 		break;
 	case 'C':
-		arr = new PersonArray_t(getSize());
+		arr = new PersonArray_t(getNumber(init_arr_size));
 		break;
 	default:
 		cout << "Invalid input, program will exit" << endl;
@@ -86,6 +70,7 @@ int main()
 	size_t prevCount = 0;
 	size_t index;
 	char c;
+	string index_message ="\nEnter an index (will be interpreted as size_t)";
 
 	arr = getArray();
 	if (arr == NULL)
@@ -205,7 +190,7 @@ int main()
 			break;
 		case 'a':
 			cout << "\nAppend \n";
-			index = getIndex();
+			index = getNumber(index_message);
 			ptr = getPerson();
 			if (!arr->append(index, ptr))
 			{
@@ -221,7 +206,7 @@ int main()
 		case 'p':
 
 			cout << "\nPrepend \n";
-			index = getIndex();
+			index = getNumber(index_message);
 			ptr = getPerson();
 
 			if (!arr->prepend(index, ptr))
