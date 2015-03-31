@@ -92,11 +92,13 @@ int main()
 	{
 		return 0;
 	}
+
+	cout << "\nPlease write the first letter of the method you wish to call from the following list: " << endl;
 	
 	while (cont)
 	{
 
-		cout << "\nnum elements | capacity | insert | first | last | Find | remove | Remove all |\n delete-remove | Delete-remove all | append | prepend | Print | quit" << endl;
+		cout << "\nnum elements | capacity | IsEmpty |insert | first | last | Find | remove |\nRemove all | delete-remove | Delete-remove all | append | prepend | Print | quit" << endl;
 
 		cin >> c;
 		// clear rest of the line 
@@ -115,7 +117,7 @@ int main()
 			arr->insert(ptr);
 			break;
 		case 'f':
-
+			cout << "\nFirst element:" << endl;
 			ptr = arr->firstElement();
 			if (ptr == NULL)
 			{
@@ -127,6 +129,7 @@ int main()
 			}
 			break;
 		case 'l':
+			cout << "\nLast element:" << endl;
 			ptr = arr->lastElement();
 			if (ptr == NULL)
 			{
@@ -139,7 +142,7 @@ int main()
 			break;
 		case 'F':
 
-			cout << "\nFind \n";
+			cout << "\nFind method" << endl;
 			ptr = getPerson();
 			res = arr->find(*ptr);
 
@@ -185,7 +188,7 @@ int main()
 
 		case 'd':
 
-			cout << "\nRemove+delete by value \n";
+			cout << "\nRemove + delete by value \n";
 			prevCount = arr->getNumElements();
 			ptr = getPerson();
 			cout << "\nremoving all occurances (with deleting) ..." << endl;
@@ -236,6 +239,10 @@ int main()
 			break;
 		case 'q':
 			cont = false;
+			break;
+		case 'I':
+			cout << "\nisEmpty method" << endl;
+			cout << (arr->isEmpty() ? "Array is empty" : "Array is not empty!") << endl;
 			break;
 		default:
 			cout << "\nInvalid input" << endl;

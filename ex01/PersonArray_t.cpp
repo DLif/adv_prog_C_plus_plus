@@ -17,36 +17,7 @@ PersonArray_t::~PersonArray_t()
 	delete[] m_array;
 }
 
-size_t PersonArray_t::getCapacity() const
-{
-	return m_capacity;
-}
 
-Person_t* PersonArray_t::firstElement() const
-{
-	if (m_num_elements == 0)
-	{
-		// empty array
-		return NULL;
-	}
-
-	return (Person_t*)this->m_array[0];
-}
-
-Person_t* PersonArray_t::lastElement() const
-{
-	if (m_num_elements == 0)
-	{
-		// empty array
-		return NULL;
-	}
-	return (Person_t*)(m_array[m_num_elements - 1]);
-
-}
-size_t PersonArray_t::getNumElements() const
-{
-	return m_num_elements;
-}
 
 void PersonArray_t::insert(const Person_t* personPtr)
 {
@@ -145,13 +116,6 @@ void PersonArray_t::contractStartingAt(size_t index)
 
 
 
-
-void PersonArray_t::removeAll()
-{
-	m_num_elements = 0; //this means that any pointers left in the array would be treated as junk
-	//we would never access them again and some of them will be overriden as we insert new pointers
-}
-
 void PersonArray_t::removeDeleteAll()
 {
 	//iterate over all objects in array and call their destructor
@@ -237,14 +201,8 @@ int PersonArray_t::prepend(size_t index, const Person_t* person){
 	return 1;
 }
 
-Person_t* PersonArray_t::elementAt(size_t index) const
-{
-	if (index >= m_num_elements)
-		return NULL;
 
-	return (Person_t*)m_array[index];
-}
-
+// fill os with a textual representation of the array
 ostream& operator<<(ostream& os, const PersonArray_t& array)
 {
 
