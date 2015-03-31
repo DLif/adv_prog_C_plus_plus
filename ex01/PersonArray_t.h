@@ -87,22 +87,17 @@ inline size_t PersonArray_t::getCapacity() const
 
 inline Person_t* PersonArray_t::firstElement() const
 {
-	if (m_num_elements == 0)
-	{
-		// empty array
+	if (isEmpty())
 		return NULL;
-	}
 
 	return (Person_t*)this->m_array[0];
 }
 
 inline Person_t* PersonArray_t::lastElement() const
 {
-	if (m_num_elements == 0)
-	{
-		// empty array
+	if (isEmpty())
 		return NULL;
-	}
+
 	return (Person_t*)(m_array[m_num_elements - 1]);
 
 }
