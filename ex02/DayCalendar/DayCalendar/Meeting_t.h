@@ -1,20 +1,22 @@
 #include <string>
 using namespace std;
 
-template <class T> class Meeting_t {
+ostream& operator<<(ostream& os, const Meeting_t<T>& meeting); //check- why isn't it a part of the class.
+istream& operator>>(istream& is, Meeting_t<T>& meeting); //exceptoin-throwing "invalid input"
 
-	friend ostream& operator<<(ostream& os, const Meeting_t<T>& meeting);
-	friend istream& operator>>(istream& is, Meeting_t<T>& meeting);
+template <class T> class Meeting_t {
 
 public:
 
 	virtual ~Meeting_t();
-	Meeting_t(const string& meetingTopic, const T& startingTime, const T& finishTime);
 	Meeting_t(const Meeting_t& other);
 	Meeting();
 
+	//virtual init(const string& meetingTopic, const T& startingTime, const T& finishTime).   //exceptoin-throwing "invalid input"
+
 	virtual Meeting_t& operator=(const Meeting_t& other) const;
 	inline bool operator==(const Meeting_t& other) const;
+	// <
 
 	inline T getMeetingDuration() const;
 	inline T getStartingTime() const;
