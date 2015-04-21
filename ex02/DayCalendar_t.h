@@ -20,7 +20,6 @@ public:
 	bool is_empty() const;
 	void destroy_all();
 	// == default
-	// destroy all
 
 protected:
 	bool check_new_day_validity(const Meeting_t<T>* meeting) const;
@@ -35,6 +34,7 @@ template <class T> DayCalendar_t<T>::~DayCalendar_t() {
 	delete (&meetings);
 } 
 
+//A simple assigment operator- check if we try to assign A to itself, and if not, copy "other" fields to this.
 template <class T>
 DayCalendar_t<T>& DayCalendar_t<T>::operator=(const DayCalendar_t<T>& other) {
 	if (&this != &other){
@@ -43,6 +43,10 @@ DayCalendar_t<T>& DayCalendar_t<T>::operator=(const DayCalendar_t<T>& other) {
 	return *this;
 }
 
+/*
+	This function adds a given meeting pointer into the calendar.
+	The meeting pointer will be inserted to the vector according to it's starting time- the pointers in the vector are sorted by their starting time.
+*/
 template <class T>
 void DayCalendar_t<T>::addMeeting(const Meeting_t<T>* meeting) {
 	if (check_new_day_validity()) {
@@ -122,6 +126,9 @@ bool DayCalendar_t<T>::removeMeeting(const T& startingTime) {
 	return false;
 }
 
+/*
+	This function returns true if there are no meetings in this calendar, and false if there are.
+*/
 template <class T>
 bool DayCalendar_t<T>::is_empty() const {
 	return meetings.empty();

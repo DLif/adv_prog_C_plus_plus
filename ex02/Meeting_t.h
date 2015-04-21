@@ -129,3 +129,21 @@ bool Meeting_t<T>::check_args_valid_for_fields(const T& startingTime, const T& f
 		return true;
 	}
 }
+
+/*
+	This function decleares a < operator for meetings.
+	We say that meeting A is < than B if they have:
+	1) Have not intersection (!(A==B)) 
+	2) A starting time is smaller than B starting time 
+	(This two together mean that also A finish time is smaller than B finish time)
+
+*/
+template <class T>
+bool Meeting_t<T>::operator<(const Meeting_t& other) const {
+	if ( !((*this)==(*other)) && this->startingTime < other->startingTime ) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}

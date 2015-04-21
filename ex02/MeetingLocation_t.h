@@ -36,7 +36,7 @@ template <class T> MeetingLocation_t<T>::MeetingLocation_t() {}	//Default constr
 
 //Copy constructor. Simply copy each of the fields from the given meeting_t object
 template <class T> MeetingLocation_t<T>::MeetingLocation_t(const MeetingLocation_t<T>& other) 
-	: Meeting_t(other) { //call to father copy constructor
+	: Meeting_t(other) { //call to father copy constructor. this will handle the copying of the father fields
 
 		this->location = other.location;
 }
