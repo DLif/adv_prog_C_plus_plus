@@ -1,46 +1,139 @@
+#ifndef MEETING_H
+#define MEETING_H
+
 #include <string>
 #include <iostream>
+#include <stdexcept>
+
 using namespace std;
 
-//ostream& operator<<(ostream& os, const Meeting_t<T>& meeting); //check- why isn't it a part of the class.
-//istream& operator>>(istream& is, Meeting_t<T>& meeting); //exceptoin-throwing "invalid input"
+// declare class template
+// (to make friend methods declarations possible)
+
+template <class T>
+class Meeting_t;
+
+// friend methods declarations
+template <class T>
+ostream& operator<<(ostream&, const Meeting_t<T>&);
+
+template <class T>
+istream& operator>>(istream&, Meeting_t<T>& );
+
 
 template <class T> class Meeting_t {
 
+	friend ostream& operator<< <T> (ostream& os, const Meeting_t& meeting);
+	friend istream& operator>> <T> (istream& is, Meeting_t& meeting); 
+
 public:
 
-	virtual ~Meeting_t<T>();
-	Meeting_t<T>(const Meeting_t& other);
-	Meeting_t<T>();
+	virtual ~Meeting_t<T>();                  // trivial (empty) implementation will suffice
+	//Meeting_t<T>(const Meeting_t& other);   CCTOR default implementation will suffice
+	//Meeting_t<T>();                         Default CTOR, default implementation will suffice
 
-	void init(const string& meetingTopic, const T& startingTime, const T& finishTime);   //exceptoin-throwing "invalid input"
 
-	Meeting_t<T>& operator=(const Meeting_t<T>& other) const;
+
+	//	This methods initializes the object's fields with giving parameteres
+	//	This method MUST be called after the constructor and before using the object
+	//	An initialization method enables us to throw exceptions (since we do not want to throw exceptions from the constructor)
+	//	
+	//	NOTES:
+	//		1. if startingTime >= finishTime then invalid_argument exception will be thrown 
+	//      2. if startingTime or finishTime are out of valid bounds (0-24) invalid_argument exception will be thrown
+	
+	 void init(const string& meetingTopic, const T& startingTime, const T& finishTime);
+
+	// the assignment operator is virtual, in case deriving classes will want to handle such an assignment
+	// in a different way, for example setting extra fields to a some value
+	// virtual Meeting_t<T>& operator=(const Meeting_t<T>& other) const; 
+
+
+
+	//	GENERAL NOTE: all logic regarding meeting time managment and meeting topic
+	//	is encapsulated in the base class, therefore the operators ==, <
+	//	and the getter methods are not virtual, since the desired functionallity is already provided
+	//	in the base class and is expected to remain the same in all Meeting_t objects
+
+
+
+	//	returns true iff two meetings occur in time ranges that overlap (intersect)		
+	//
+	//	NOTE: this functionality is expected from all Meeting_t objects and is encapsulated entirely in the base class 
+	//	thus this method must not be virtual
 	inline bool operator==(const Meeting_t& other) const;
-	bool operator<(const Meeting_t& other) const;
 
-	inline T getMeetingDuration() const;
+
+	//	returns true iff this meeting occurs BEFORE other given meeting
+	//	We say that meeting A is < than B if they have:
+	//		1) Do not intersect in time ranges (!(A==B)) 
+	//		2) A's starting time is smaller than B's starting time 
+	//		(These two together also imply that A's finish time is smaller than B's finish time)
+	// 
+	//	NOTE: this functionality is expected from all Meeting_t objects and is encapsulated entirely in the base class 
+	//	thus this method must not be virtual
+	inline bool operator <(const Meeting_t& other) const;
+
+
+	//	get meeting starting time 
 	inline T getStartingTime() const;
+
+	// get meeting finish time
 	inline T getFinishTime() const;
+
+	//	get meeting topic (title)
 	inline string getMeetingTopic() const;
+
+	// change the meeting's topic
+	// virtual because basic implementation may not suffice (for example if meeting is syncronized with the cloud)
+	inline virtual void changeMeetingTopic(const string& topic);
+
+
+
+protected:
+
+	// input/ouput methods. The reason they are protected is to enable friend
+	// <<, >> overloads to call them (polymorphically, note the virtual) without exposing these methods as public
+
+	// read into the meeting from given stream
+	virtual istream& readFrom(istream& is);
+
+	// output textual representation to the stream
+	virtual ostream& outputTo(ostream& os) const;
 
 
 private:
-	bool check_args_valid_for_fields(const T& startingTime, const T& finishTime);
+
+	// method checks if given arguments represent a valid time range
+	// 1. startingTime < finishTime
+	// 2. startingTime and finishTime are both in valid range 0-24
+	// if any error found, invalid_argument exception is thrown
+	void validateInitArguments(const T& startingTime, const T& finishTime);
+
+	// meeting starting time
 	T startingTime;
+
+	// meeting finish time
 	T finishTime;
+
+	// the topic of the meeting
 	string meetingTopic;
+
+
+	
 
 };
 
-/*
-	simple get functions for the fields
-*/
+//
+//	memeber function implementations
+//
+
 template <class T>
-inline T Meeting_t<T>::getMeetingDuration() const
-{
-	return finishTime - startingTime;
-}
+Meeting_t<T>::~Meeting_t() {
+	// empty  destructor will suffice
+	// destorys all data members
+};
+
 
 template <class T>
 inline T Meeting_t<T>::getStartingTime() const
@@ -60,90 +153,122 @@ inline string Meeting_t<T>::getMeetingTopic() const
 	return meetingTopic;
 }
 
-/*
-	As instructed, the == operation check equeality by intersaction of the meetings occurence.
-	if there is a time in which both of the meetings occur - they are equal.
-*/
+template <class T>
+inline void changeMeetingTopic(const string& topic)
+{
+	this->meetingTopic = topic;
+}
+
+
 template <class T>
 inline bool Meeting_t<T>::operator==(const Meeting_t<T>& other) const
 {
-	return (startingTime > other.startingTime && startingTime < other.finishTime)
-		|| (other.startingTime > startingTime && other.startingTime < finishTime);
+	return (startingTime > other.startingTime && startingTime < other.finishTime)  // current meeting starts after given meeting
+		|| (other.startingTime > startingTime && other.startingTime < finishTime)  // current meeting starts before given meeting
+		|| (startingTime == other.startingTime);                                   // start at the same time
 }
 
-template <class T> Meeting_t<T>::Meeting_t() {}	//Default constructor. Empty implemenation (all we need is the object space initialization. we will fill the variables with the function init()).
 
-//Copy constructor. Simply copy each of the fields from the given meeting_t object
-template <class T> Meeting_t<T>::Meeting_t(const Meeting_t<T>& other) {
-	startingTime = other.startingTime;
-	finishTime = other.finishTime;
-	meetingTopic = other.meetingTopic;
-}
 
-//Destructor. Simply call destructor on each of the objects
-template <class T> Meeting_t<T>::~Meeting_t() {
-	delete (&startingTime);
-	delete (&finishTime);
-	delete (&meetingTopic);
-} 
-
-/*
-	Assigment operator.
-	Because the == operator is overriden, we will check if the object is equal to the other (and then no assingment needed) by it's address
-	Simply copy each of the fields from the given meeting_t object, if they are valid.
-*/
-template <class T> Meeting_t<T>& Meeting_t<T>::operator=(const Meeting_t<T>& other) const {
-	if (&this != &other){
-		this->startingTime= other.startingTime;
-		this->finishTime= other.finishTime;
-		this->meetingTopic= other.meetingTopic;
-	}
-	return *this;
-}
-
-/* 
-	This functions act almost like constructor which initialize object fields from given parameters.
-	Only here because the object is already allocated, throwing an exception won't give us "broken" object (like in a constructor). This allows us to check the arguments given to the object for validity.
-*/
-template <class T> 
+template <class T>
 void Meeting_t<T>::init(const string& meetingTopic, const T& startingTime, const T& finishTime){
-	if (check_args_valid_for_fields(startingTime,finishTime) == true) {
-		this-> startingTime = startingTime;
-		this->finishTime = finishTime;
-		this->meetingTopic = meetingTopic;
+
+	// ensure arguments correctness
+	validateInitArguments(startingTime, finishTime);
+	// if arguments are correct, initialize the meeting object
+	this->startingTime = startingTime;
+	this->finishTime = finishTime;
+	this->meetingTopic = meetingTopic;
+	
+}
+
+
+template <class T>
+void Meeting_t<T>::validateInitArguments(const T& startingTime, const T& finishTime)
+{
+	if (startingTime >= finishTime)
+	{
+		throw invalid_argument("Meeting starting time cannot be equal or later than the finishing time");
 	}
-	else {
-		throw exception("invalid arguments");
+	if (startingTime < 0 || startingTime > 24)
+	{
+		throw invalid_argument("Meeting starting time, is out of valid time bounds: 0-24");
+	}
+	if (finishTime < 0 || finishTime > 24)
+	{
+		throw invalid_argument("Meeting finish time, is out of valid time bounds: 0-24");
 	}
 }
 
-/*
-	This function checks that the startingTime and finishTime "makes sense"- that the startingTime is earlier than the finishTime.
-*/
 template <class T>
-bool Meeting_t<T>::check_args_valid_for_fields(const T& startingTime, const T& finishTime){
-	if (startingTime >= finishTime){
-		return false;
-	}
-	else {
-		return true;
-	}
-}
-
-/*
-	This function decleares a < operator for meetings.
-	We say that meeting A is < than B if they have:
-	1) Have not intersection (!(A==B)) 
-	2) A starting time is smaller than B starting time 
-	(This two together mean that also A finish time is smaller than B finish time)
-
-*/
-template <class T>
-bool Meeting_t<T>::operator<(const Meeting_t& other) const {
-	if ( !((*this)==(*other)) && this->startingTime < other->startingTime ) {
+bool Meeting_t<T>::operator < (const Meeting_t& other) const {
+	if (!(*this == other) && this->startingTime < other->startingTime) {
 		return true;
 	}
 	else {
 		return false;
 	}
 }
+
+template <class T>
+ostream& Meeting_t<T>::outputTo(ostream& os) const
+{
+	os << startingTime << " - " << finishTime << ": " << meetingTopic;
+	return os;
+}
+
+
+
+template <class T>
+istream& Meeting_t<T>::readFrom(istream& is)
+{
+	T startingTime, finishTime;
+	string meetingTopic;
+	if (!(is >> startingTime))
+	{
+		throw invalid_argument("Invalid meeting starting time");
+	}
+
+	if (!(is >> finishTime))
+	{
+		throw invalid_argument("Invalid meeting finish time");
+	}
+
+	if (!(is >> meetingTopic))
+	{
+		throw invalid_argument("Invalid meeting Topic");
+	}
+
+	// initialize the object with given arguments, may throw an invalid_argument exception
+	init(meetingTopic, startingTime, finishTime);
+	return is;
+}
+
+
+// read into a meeting object, uses the polymorphic method to read into the object
+// may throw an invalid argument exception
+template <class T>
+istream& operator>>(istream& is, Meeting_t<T>& meeting)
+{
+	// polymorphic call
+	return meeting.readFrom(is);
+}
+
+
+
+// output a representation of the meeting
+template <class T>
+ostream& operator<<(ostream& os, const Meeting_t<T>& meeting){
+
+	// note that this is a polymorphic call
+	return meeting.outputTo(os);
+}
+
+
+// update the meeting topic
+template <class T>
+inline void Meeting_t<T>::changeMeetingTopic(const string& topic){
+	this->meetingTopic = topic;
+}
+
+#endif

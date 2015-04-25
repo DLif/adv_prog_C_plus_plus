@@ -1,73 +1,126 @@
-#ifndef MEETING_H
-	#define MEETING_H
-	#include "Meeting_t.h"
-#endif
+#ifndef _DAY_CALENDAR_H
+#define _DAY_CALENDAR_H
+
+#include "Meeting_t.h"
 #include <vector>
 
-template <class T> class DayCalendar_t{
+using namespace std;
 
-	//friend ostream& operator<<(ostream& os, const DayCalendar_t<T>& dayCalendar); //exceptoin-throwing "invalid input"
+// class template declaration
+template <class T>
+class DayCalendar_t;
+
+// << operator method declaration
+template <class T>
+ostream& operator<< (ostream& os, const DayCalendar_t<T>& dayCalendar);
+
+
+template <class T> class DayCalendar_t {
+
+	// output a representation of the day calendar
+	friend ostream& operator<< <T>(ostream& os, const DayCalendar_t& dayCalendar); 
+																 
 public:
 
-	virtual ~DayCalendar_t();
-	// DayCalendar_t();                           /* default constructor will suffice      */
-	// DayCalendar_t(const DayCalendar_t<T>& other)  /* default copy constructor will suffice */
-	DayCalendar_t<T>& operator=(const DayCalendar_t<T>& other);
+	virtual ~DayCalendar_t();										   // empty destructor will suffice
+	// DayCalendar_t();												   // default constructor will suffice      
+	// DayCalendar_t(const DayCalendar_t<T>& other)					   // default copy constructor will suffice
+	// DayCalendar_t<T>& operator=(const DayCalendar_t<T>& other);      default assignment operator will suffice
 	
-	void addMeeting(const Meeting_t<T>* meeting); //exceptoin-throwing "invalid timing"
-	bool removeMeeting(const T& startingTime);
-	Meeting_t<T>* findMeeting(const T& startingTime) const;
-	bool is_empty() const;
-	void destroy_all();
-	// == default
+	virtual bool operator==(const DayCalendar_t<T>& other) const;       // returns true iff the other calendar contains
+																		// exactly the same meetings
+
+	virtual void addMeeting(const Meeting_t<T>* meeting);				// add a meeting to the calendar
+																		// if the meeting's time overlaps(intersects) with an existing meeting
+																		// then invalid_argument exception will be thrown
+
+	virtual Meeting_t<T>* removeMeeting(const T& startingTime);			// remove a meeting by its starting time
+																		// returns the removed meeting if found
+																		// otherwise, if no such meeting exists, returns NULL
+
+	virtual Meeting_t<T>* findMeeting(const T& startingTime) const;    // find a meeting by its starting time
+																	   // if no such meeting is found, returns NULL
+
+	inline virtual bool isEmpty() const;                               // returns true iff day calendar has no meetings
+	inline virtual size_t getMeetingsCount() const;					   // returns the number of meetings currently in day calendar
+
+	virtual void deleteAll();										   // remove + delete all meetings in calendar
+
+	inline virtual void removeAll();                                   // empty calendar, removing all meetings (without deleting)
+
 
 protected:
-	bool check_new_day_validity(const Meeting_t<T>* meeting) const;
-	int find_insert_location(const Meeting_t<T>* meeting) const;
-	vector<Meeting_t<T>*> meetings;     /* dynamic array of meetings */
+
+
+	virtual ostream& outputTo(ostream& os) const;					   // a printing method
+																	   // outputs a textual representation of the calendar
+																	   // to the given output stream
+																	   // it is called from the << friend operator (thats why its protected)
+																	   // virtual in order to ensure polymorphic calls from <<
+
+	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
+																	   // the vector is sorted according to the meetings' starting times
+																	   // this data member is protected, since we cannot predit all possible deriving classes
+																	   // for example, a RemoteDayCalendar that syncs the calendar with a cloud, will require access to the vector
+																	   // and possibly to override all above methods
+
+private:
+
+	// helper methods, to make the implementation of the base class functionalities more modular
+
+	bool doesMeetingIntersect(const Meeting_t<T>* meeting) const;      // returns true iff given meeting's time duration intersects
+																	   // some other meeting that is already in the calendar
+
+	size_t findInsertionIndex(const Meeting_t<T>* meeting) const;	   // find the the index in the meetings vector where the meeting should be inserted
+																	   // meetings vector is sorted, so the insertion index is the required index to 
+																	   // insert given meeting, so that the vector will remain sorted (by meetings starting time)
 
 };
 
-//Destructor.this function clear the object allocated area and the vector
-//It does not destroy the meetings themselfs.
-template <class T> DayCalendar_t<T>::~DayCalendar_t() {
-	delete (&meetings);
-} 
+// 
+// member functions implementation
+//
 
-//A simple assigment operator- check if we try to assign A to itself, and if not, copy "other" fields to this.
-template <class T>
-DayCalendar_t<T>& DayCalendar_t<T>::operator=(const DayCalendar_t<T>& other) {
-	if (&this != &other){
-		this->meetings = other.meetings;
-	}
-	return *this;
+template <class T> DayCalendar_t<T>::~DayCalendar_t() {
+	// empty destructor will suffice
+	// simply destory all data members
 }
+
 
 /*
 	This function adds a given meeting pointer into the calendar.
-	The meeting pointer will be inserted to the vector according to it's starting time- the pointers in the vector are sorted by their starting time.
+	The meeting pointer will be inserted to the vector according to its starting time - the pointers in the vector are sorted by their starting time.
+
+	if given meeting's time intersects with an existing meeting, an invalid_argument exception will be thrown
+
 */
 template <class T>
 void DayCalendar_t<T>::addMeeting(const Meeting_t<T>* meeting) {
-	if (check_new_day_validity()) {
-		throw exception("invalid timing");
+
+	if (doesMeetingIntersect(meeting)) {
+		throw invalid_argument("Given meeting's time intersects with an existing meeting's time");
 	}
 	else {
-		std::vector<Meeting_t<T>*>::iterator it_on_insert_loc = meetings.begin()+find_insert_location(meeting); //calculate the insertion location and move the vector iterator to the wanted index.
-		meetings.insert(it_on_insert_loc,meeting); //insert at index "insert_location(meeting)"
+		// find the insertion index of the meeting
+		vector<Meeting_t<T>*>::iterator it_on_insert_loc = meetings.begin() + findInsertionIndex(meeting);
+		// do the insertion
+		meetings.insert(it_on_insert_loc, (Meeting_t<T>*)meeting);
 	}
+
 }
 
 /*
-	Find the index where we can insert the new elemnt and keep all the list sorted by starting time of the meetings
+	Find the index where we can insert the new meeting such that the vector will remain sorted by the starting time of the meetings
 */
 template <class T>
-int DayCalendar_t<T>::find_insert_location(const Meeting_t<T>* meeting) const{
-	int insertion_index = 0;
+size_t DayCalendar_t<T>::findInsertionIndex(const Meeting_t<T>* meeting) const{
 
-	for (insertion_index = 0 ; insertion_index < meetings.size() ; insertion_index++) {
-		if (insertion_index->startingTime < meetings[insertion_index]->startingTime){
-			break; //found where we can put the new meetig and still keep them sorted
+	size_t insertion_index = 0;
+
+	for (insertion_index = 0; insertion_index < meetings.size(); insertion_index++) {
+		if (meeting->getStartingTime() < meetings[insertion_index]->getStartingTime()){
+			//insertion_index is the index where we can put the new meetig and still keep them sorted
+			break;
 		}
 	}
 
@@ -75,34 +128,30 @@ int DayCalendar_t<T>::find_insert_location(const Meeting_t<T>* meeting) const{
 }
 
 /*
-	This function check if there is a meeting which intersects with the time of *meeting;
+	This function checks if there is a meeting which intersects with the time of given meeting
 	If there is return true, else false.
 */
 template <class T>
-bool DayCalendar_t<T>::check_new_day_validity(const Meeting_t<T>* meeting) const{
-	bool is_intersecting = false;
+bool DayCalendar_t<T>::doesMeetingIntersect(const Meeting_t<T>* meeting) const{
 
-	for (int i=0; i<meetings.size();i++){
-		if( (*meetings[i]) == (*meeting)) {
-			is_intersecting = true;
-			break;
-		}
-		else if (meetings[i]->finishTime < meeting->startingTime){
-			break;//this means that there won't be any more intersection. we can leave the loop
+	for (size_t i = 0; i<meetings.size(); i++){
+		if (*(meetings[i]) == *meeting) {
+			// found intersection
+			return true;
 		}
 	}
 
-	return is_intersecting;
+	return false;
 }
 
 /*
-	iterate over all elemnts, and return pointer to the one with the same startingTime. 
-	If there is no such elemnt, return NULL.
+	iterate over meetings, and return a pointer to a meeting with given startingTime
+	If there is no such meeting, return NULL.
 */
 template <class T>
 Meeting_t<T>* DayCalendar_t<T>::findMeeting(const T& startingTime) const {
-	for (int i=0; i<meetings.size();i++){ 
-		if(meetings[i]->startingTime == startingTime) {
+	for (size_t i = 0; i < meetings.size(); i++){
+		if (meetings[i]->getStartingTime() == startingTime) {
 			return meetings[i];
 		}
 	}
@@ -110,37 +159,98 @@ Meeting_t<T>* DayCalendar_t<T>::findMeeting(const T& startingTime) const {
 }
 
 /*
-	This function finds the first meeting with the given startingTime and erase it. 
-	If there is such one, return true. Else return false.
-	In order to remove in only one loop, we won't use find
+	This function finds the a meeting with the given startingTime, and if such found, removes it from the array
+	if such a meeting was found, the method returns it, otherwise returns NULL
 */
 template <class T>
-bool DayCalendar_t<T>::removeMeeting(const T& startingTime) {
-	std::vector<Meeting_t<T>*>::iterator it_index_to_remove = meetings.begin();
-	for (int i=0; i<meetings.size();i++){ 
-		if(meetings[i]->startingTime == startingTime) {
-			meetings.erase(it_index_to_remove+i);
-			return true;
+Meeting_t<T>* DayCalendar_t<T>::removeMeeting(const T& startingTime) {
+
+	vector<Meeting_t<T>*>::iterator it_index_to_remove = meetings.begin();
+
+	for (size_t i = 0; i< meetings.size(); i++){
+		if (meetings[i]->getStartingTime() == startingTime) {
+
+			Meeting_t<T>* meeting = meetings[i];
+			meetings.erase(it_index_to_remove + i);
+			return meeting;
 		}
 	}
-	return false;
+	return NULL;
 }
 
-/*
-	This function returns true if there are no meetings in this calendar, and false if there are.
+/*	
+	returns true iff the calendar is empty
 */
 template <class T>
-bool DayCalendar_t<T>::is_empty() const {
+inline bool DayCalendar_t<T>::isEmpty() const {
 	return meetings.empty();
 }
 
 /*
-	This function clears all the meetings from the calendar and call the destructor on them all.
+	This function removes all the meetings inside the calendar, without deleting them
 */
+
 template <class T>
-void DayCalendar_t<T>::destroy_all() {
-	for (int i=0; i<meetings.size();i++){ 
-		delete meetings[i];
-	}
+inline void DayCalendar_t<T>::removeAll()
+{
 	meetings.clear();
 }
+
+/*
+	get the number of meetings currently in calendar
+*/
+template <class T>
+inline size_t DayCalendar_t<T>::getMeetingsCount() const
+{
+	return meetings.size();
+}
+
+
+/*
+	This function removes all the meetings from the calendar and also deletes them
+*/
+template <class T>
+void DayCalendar_t<T>::deleteAll() {
+	for (size_t i = 0; i< meetings.size(); i++){
+		delete meetings[i];
+	}
+	removeAll();
+}
+
+/*
+	output to ostream method
+	each instantiated method is a friend of the correspoding DayCalendar_t class
+*/
+
+template <class T>
+ostream& operator<<(ostream& os, const DayCalendar_t<T>& dayCalendar)
+{
+	// polymorphic call
+	return dayCalendar.outputTo(os);
+}
+
+
+
+template <class T>
+ostream& DayCalendar_t<T>::outputTo(ostream& os) const
+{
+	os << "Day Calendar\n\n Meetings:\n" << endl;
+	for (size_t i = 0; i< meetings.size(); i++){
+		os << *(meetings[i]) << endl;
+	}
+
+	if (meetings.size() == 0)
+	{
+		os << "No meetings in calendar\n" << endl;
+	}
+
+	return os;
+}
+
+template <class T>
+inline bool DayCalendar_t<T>::operator==(const DayCalendar_t<T>& other) const
+{
+	return this->meetings == other.meetings;
+}
+
+#endif
