@@ -44,9 +44,9 @@ public:
 																		// otherwise, if no such meeting exists, returns NULL
 																		// virtual in order to enable additional logic when removing
 
-	Meeting_t<T>* findMeeting(const T& startingTime) const;			   // find a meeting by its starting time
-																	   // if no such meeting is found, returns NULL
-																	   // not virtual because all calendars have the same underlaying data structure
+	virtual Meeting_t<T>* findMeeting(const T& startingTime) const;		// find a meeting by its starting time
+																	    // if no such meeting is found, returns NULL
+																	    // virtual in order to enable additional logic when finding 
 
 	inline bool isEmpty() const;										// returns true iff day calendar has no meetings
 	inline size_t getMeetingsCount() const;								// returns the number of meetings currently in day calendar
@@ -68,6 +68,12 @@ protected:
 																	   // virtual in order to ensure polymorphic calls from <<
 																	   // protected in order to enable deriving classes to call it
 
+	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
+																	   // the vector is sorted according to the meetings' starting times
+																	   // protected in order to enable deriving classes more flexiblity
+																	   // (cant predict all possible deriving classes)
+	
+
 
 private:
 
@@ -84,11 +90,7 @@ private:
 																		 // in order to find a meeting with given startingTime
 																		 // found will hold the result, true if such a meeting was found, false otherwise
 
-	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
-																	   // the vector is sorted according to the meetings' starting times
-																	   // it is private in order to abstract the data structure implementation
-																	   // and enforce constrains such as no overlapping meetings and sorted ordering
-																	   // for all calendar types
+	
 																		
 };
 
