@@ -269,6 +269,11 @@ template <class T>
 size_t DayCalendar_t<T>::findIndexOfMeeting(const T& startingTime, bool& found) const
 {
 	size_t mid;
+	if (isEmpty()){
+		found = false;
+		return 0;
+	}
+
 	size_t max = meetings.size() - 1;
 	size_t min = 0;
 
@@ -277,8 +282,15 @@ size_t DayCalendar_t<T>::findIndexOfMeeting(const T& startingTime, bool& found) 
 
 		if ((meetings[mid])->getStartingTime() < startingTime)
 			min = mid + 1;
-		else if ((meetings[mid])->getStartingTime() > startingTime)
+		else if ((meetings[mid])->getStartingTime() > startingTime){
+			
+			if (mid == 0)
+			{
+				// we already know the meeting does not exist
+				break;
+			}
 			max = mid - 1;
+		}
 
 		else
 		{
@@ -288,7 +300,7 @@ size_t DayCalendar_t<T>::findIndexOfMeeting(const T& startingTime, bool& found) 
 
 	}
 	found = false;
-	return min;
+	return 0;
 }
 
 template <class T>

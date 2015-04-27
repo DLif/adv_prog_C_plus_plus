@@ -211,7 +211,7 @@ int main()
 	cin.clear();
 	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-	if (c == 'F')
+	if (c == 'f')
 	{
 		cout << "Valid time values are all float values in 0-24, for example: 24, 0.00, 13.5 (13 and a half), 13.75\n" << endl;
 		processCommands<float>();
