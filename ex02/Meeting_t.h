@@ -42,19 +42,13 @@ public:
 	//		1. if startingTime >= finishTime then invalid_argument exception will be thrown 
 	//      2. if startingTime or finishTime are out of valid bounds (0-24) invalid_argument exception will be thrown
 	
-	 void init(const string& meetingTopic, const T& startingTime, const T& finishTime);
-
-	// the assignment operator is virtual, in case deriving classes will want to handle such an assignment
-	// in a different way, for example setting extra fields to a some value
-	// virtual Meeting_t<T>& operator=(const Meeting_t<T>& other) const; 
+	void init(const string& meetingTopic, const T& startingTime, const T& finishTime);
 
 
-
-	//	GENERAL NOTE: all logic regarding meeting time managment and meeting topic
+	//	GENERAL NOTE: all logic regarding meeting time managment
 	//	is encapsulated in the base class, therefore the operators ==, <
 	//	and the getter methods are not virtual, since the desired functionallity is already provided
 	//	in the base class and is expected to remain the same in all Meeting_t objects
-
 
 
 	//	returns true iff two meetings occur in time ranges that overlap (intersect)		
@@ -64,7 +58,7 @@ public:
 	inline bool operator==(const Meeting_t& other) const;
 
 
-	//	returns true iff this meeting occurs BEFORE other given meeting
+	//	Returns true iff this meeting occurs BEFORE other given meeting
 	//	We say that meeting A is < than B if they have:
 	//		1) Do not intersect in time ranges (!(A==B)) 
 	//		2) A's starting time is smaller than B's starting time 
@@ -84,16 +78,12 @@ public:
 	//	get meeting topic (title)
 	inline string getMeetingTopic() const;
 
-	// change the meeting's topic
-	// virtual because basic implementation may not suffice (for example if meeting is syncronized with the cloud)
-	inline virtual void changeMeetingTopic(const string& topic);
-
-
 
 protected:
 
-	// input/ouput methods. The reason they are protected is to enable friend
-	// <<, >> overloads to call them (polymorphically, note the virtual) without exposing these methods as public
+	// input/ouput methods. The reason they are protected is to enable deriving classes to call them.
+	// Their purpose: enable <<, >> overloads to call them (polymorphically, note the virtual)
+	// without exposing these methods as public
 
 	// read into the meeting from given stream
 	virtual istream& readFrom(istream& is);
@@ -119,8 +109,6 @@ private:
 	// the topic of the meeting
 	string meetingTopic;
 
-
-	
 
 };
 
@@ -151,12 +139,6 @@ template <class T>
 inline string Meeting_t<T>::getMeetingTopic() const
 {
 	return meetingTopic;
-}
-
-template <class T>
-inline void changeMeetingTopic(const string& topic)
-{
-	this->meetingTopic = topic;
 }
 
 
@@ -201,7 +183,7 @@ void Meeting_t<T>::validateInitArguments(const T& startingTime, const T& finishT
 }
 
 template <class T>
-bool Meeting_t<T>::operator < (const Meeting_t& other) const {
+inline bool Meeting_t<T>::operator < (const Meeting_t& other) const {
 	if (!(*this == other) && this->startingTime < other->startingTime) {
 		return true;
 	}
@@ -265,10 +247,5 @@ ostream& operator<<(ostream& os, const Meeting_t<T>& meeting){
 }
 
 
-// update the meeting topic
-template <class T>
-inline void Meeting_t<T>::changeMeetingTopic(const string& topic){
-	this->meetingTopic = topic;
-}
 
 #endif
