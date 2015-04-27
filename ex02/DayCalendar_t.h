@@ -65,13 +65,7 @@ protected:
 																	   // in the base implementation, the vector is sorted according to the meetings' starting times
 																	   // this data member is protected, since we cannot predit all possible deriving classes
 																	   // for example, a RemoteDayCalendar that syncs the calendar with a cloud, will require access to the vector
-																	   // and possibly to override all above methods
 
-private:
-
-	size_t findIndexOfMeeting(const T& startingTime, bool& found) const; // method performs a binary search on the sorted vector
-																		 // in order to find a meeting with given startingTime
-																		 // found will hold the result, true if such a meeting was found, false otherwise
 
 private:
 
@@ -84,6 +78,9 @@ private:
 																	   // meetings vector is sorted, so the insertion index is the required index to 
 																	   // insert given meeting, so that the vector will remain sorted (by meetings starting time)
 
+	size_t findIndexOfMeeting(const T& startingTime, bool& found) const; // method performs a binary search on the sorted vector
+																		 // in order to find a meeting with given startingTime
+																		 // found will hold the result, true if such a meeting was found, false otherwise
 };
 
 // 
@@ -179,7 +176,7 @@ Meeting_t<T>* DayCalendar_t<T>::findMeeting(const T& startingTime) const {
 template <class T>
 Meeting_t<T>* DayCalendar_t<T>::removeMeeting(const T& startingTime) {
 
-	vector<Meeting_t<T>*>::iterator it_index_to_remove = meetings.begin();
+	
 	// locate the meeting in the vector (binary search)
 	bool exists; 
 	size_t meetingIndex = findIndexOfMeeting(startingTime, exists);
@@ -188,7 +185,7 @@ Meeting_t<T>* DayCalendar_t<T>::removeMeeting(const T& startingTime) {
 	{
 		// if found, remove from array and return it
 		Meeting_t<T>* meeting = meetings[meetingIndex];
-		meetings.erase(it_index_to_remove + meetingIndex);
+		meetings.erase(meetings.begin() + meetingIndex);
 		return meeting;
 	}
 	// not found
@@ -264,6 +261,13 @@ ostream& DayCalendar_t<T>::outputTo(ostream& os) const
 	return os;
 }
 
+/*
+	simple binary search on the sorted vector to find the a meeting with given starting time
+	
+	if such a meeting exists, its index will be returned and found will be true
+	otherwise, found will be false (ignore startingTime in this case)
+	
+*/
 
 template <class T>
 size_t DayCalendar_t<T>::findIndexOfMeeting(const T& startingTime, bool& found) const
@@ -303,6 +307,7 @@ size_t DayCalendar_t<T>::findIndexOfMeeting(const T& startingTime, bool& found) 
 	return 0;
 }
 
+// comparsion operators returns true iff the calendars contain exactly the same meetings
 template <class T>
 inline bool DayCalendar_t<T>::operator==(const DayCalendar_t<T>& other) const
 {
