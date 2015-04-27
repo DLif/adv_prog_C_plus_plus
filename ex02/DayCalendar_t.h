@@ -30,25 +30,32 @@ public:
 	inline bool operator==(const DayCalendar_t<T>& other) const;        // returns true iff the other calendar contains
 																		// exactly the same meetings
 
-	void addMeeting(const Meeting_t<T>* meeting);				// add a meeting to the calendar
+	
+	virtual void addMeeting(const Meeting_t<T>* meeting);				// add a meeting to the calendar
 																		// if the meeting's time overlaps(intersects) with an existing meeting
 																		// then invalid_argument exception will be thrown
 																	    // the meeting will be added in such a manner that the calendar will
 																		// remain sorted by meetings' starting hour
+																		// virtual in order to enable additional logic when adding
+																		
 
-	Meeting_t<T>* removeMeeting(const T& startingTime);			// remove a meeting by its starting time
+	virtual Meeting_t<T>* removeMeeting(const T& startingTime);			// remove a meeting by its starting time
 																		// returns the removed meeting if found
 																		// otherwise, if no such meeting exists, returns NULL
+																		// virtual in order to enable additional logic when removing
 
-	Meeting_t<T>* findMeeting(const T& startingTime) const;    // find a meeting by its starting time
+	Meeting_t<T>* findMeeting(const T& startingTime) const;			   // find a meeting by its starting time
 																	   // if no such meeting is found, returns NULL
+																	   // not virtual because all calendars have the same underlaying data structure
 
-	inline bool isEmpty() const;                               // returns true iff day calendar has no meetings
-	inline size_t getMeetingsCount() const;					   // returns the number of meetings currently in day calendar
+	inline bool isEmpty() const;										// returns true iff day calendar has no meetings
+	inline size_t getMeetingsCount() const;								// returns the number of meetings currently in day calendar
 
-	void deleteAll();										   // remove + delete all meetings in calendar
+	virtual void deleteAll();											// remove + delete all meetings in calendar
+																		// virtual in order to enable additional logic when removing
 
-	inline void removeAll();                                   // empty calendar, removing all meetings (without deleting)
+	inline virtual void removeAll();									// empty calendar, removing all meetings (without deleting)
+																		// virtual in order to enable additional logic when removing
 
 
 protected:
@@ -64,9 +71,6 @@ protected:
 
 private:
 
-	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
-																	   // The vector is sorted according to the meetings starting times
-
 	// helper methods, to make the implementation of the base class functionalities more modular
 
 	bool doesMeetingIntersect(const Meeting_t<T>* meeting) const;      // returns true iff given meeting's time duration intersects
@@ -79,6 +83,13 @@ private:
 	size_t findIndexOfMeeting(const T& startingTime, bool& found) const; // method performs a binary search on the sorted vector
 																		 // in order to find a meeting with given startingTime
 																		 // found will hold the result, true if such a meeting was found, false otherwise
+
+	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
+																	   // the vector is sorted according to the meetings' starting times
+																	   // it is private in order to abstract the data structure implementation
+																	   // and enforce constrains such as no overlapping meetings and sorted ordering
+																	   // for all calendar types
+																		
 };
 
 // 
