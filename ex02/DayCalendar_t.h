@@ -18,7 +18,7 @@ ostream& operator<< (ostream& os, const DayCalendar_t<T>& dayCalendar);
 template <class T> class DayCalendar_t {
 
 	// output a representation of the day calendar
-	friend ostream& operator<< <T>(ostream& os, const DayCalendar_t& dayCalendar); 
+	friend ostream& operator<< <T>(ostream& os, const DayCalendar_t& dayCalendar);
 																 
 public:
 
@@ -27,12 +27,14 @@ public:
 	// DayCalendar_t(const DayCalendar_t<T>& other)					   // default copy constructor will suffice
 	// DayCalendar_t<T>& operator=(const DayCalendar_t<T>& other);      default assignment operator will suffice
 	
-	virtual bool operator==(const DayCalendar_t<T>& other) const;       // returns true iff the other calendar contains
+	inline bool operator==(const DayCalendar_t<T>& other) const;        // returns true iff the other calendar contains
 																		// exactly the same meetings
 
 	virtual void addMeeting(const Meeting_t<T>* meeting);				// add a meeting to the calendar
 																		// if the meeting's time overlaps(intersects) with an existing meeting
 																		// then invalid_argument exception will be thrown
+																	    // the meeting will be added in such a manner that the calendar will
+																		// remain sorted by meetings' starting hour
 
 	virtual Meeting_t<T>* removeMeeting(const T& startingTime);			// remove a meeting by its starting time
 																		// returns the removed meeting if found
@@ -55,14 +57,21 @@ protected:
 	virtual ostream& outputTo(ostream& os) const;					   // a printing method
 																	   // outputs a textual representation of the calendar
 																	   // to the given output stream
-																	   // it is called from the << friend operator (thats why its protected)
+																	   // it is called from the << friend operator
 																	   // virtual in order to ensure polymorphic calls from <<
+																	   // protected in order to enable deriving classes to call it
 
 	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
-																	   // the vector is sorted according to the meetings' starting times
+																	   // in the base implementation, the vector is sorted according to the meetings' starting times
 																	   // this data member is protected, since we cannot predit all possible deriving classes
 																	   // for example, a RemoteDayCalendar that syncs the calendar with a cloud, will require access to the vector
 																	   // and possibly to override all above methods
+
+private:
+
+	size_t findIndexOfMeeting(const T& startingTime, bool& found) const; // method performs a binary search on the sorted vector
+																		 // in order to find a meeting with given startingTime
+																		 // found will hold the result, true if such a meeting was found, false otherwise
 
 private:
 
@@ -150,11 +159,16 @@ bool DayCalendar_t<T>::doesMeetingIntersect(const Meeting_t<T>* meeting) const{
 */
 template <class T>
 Meeting_t<T>* DayCalendar_t<T>::findMeeting(const T& startingTime) const {
-	for (size_t i = 0; i < meetings.size(); i++){
-		if (meetings[i]->getStartingTime() == startingTime) {
-			return meetings[i];
-		}
+
+	// locate the meeting in the vector (binary search)
+	bool exists;
+	size_t meetingIndex = findIndexOfMeeting(startingTime, exists);
+
+	if (exists)
+	{
+		return meetings[meetingIndex];
 	}
+
 	return NULL;
 }
 
@@ -166,15 +180,18 @@ template <class T>
 Meeting_t<T>* DayCalendar_t<T>::removeMeeting(const T& startingTime) {
 
 	vector<Meeting_t<T>*>::iterator it_index_to_remove = meetings.begin();
+	// locate the meeting in the vector (binary search)
+	bool exists; 
+	size_t meetingIndex = findIndexOfMeeting(startingTime, exists);
 
-	for (size_t i = 0; i< meetings.size(); i++){
-		if (meetings[i]->getStartingTime() == startingTime) {
-
-			Meeting_t<T>* meeting = meetings[i];
-			meetings.erase(it_index_to_remove + i);
-			return meeting;
-		}
+	if (exists)
+	{
+		// if found, remove from array and return it
+		Meeting_t<T>* meeting = meetings[meetingIndex];
+		meetings.erase(it_index_to_remove + meetingIndex);
+		return meeting;
 	}
+	// not found
 	return NULL;
 }
 
@@ -245,6 +262,33 @@ ostream& DayCalendar_t<T>::outputTo(ostream& os) const
 	}
 
 	return os;
+}
+
+
+template <class T>
+size_t DayCalendar_t<T>::findIndexOfMeeting(const T& startingTime, bool& found) const
+{
+	size_t mid;
+	size_t max = meetings.size() - 1;
+	size_t min = 0;
+
+	while (max >= min){
+		mid = (min + max) / 2;
+
+		if ((meetings[mid])->getStartingTime() < startingTime)
+			min = mid + 1;
+		else if ((meetings[mid])->getStartingTime() > startingTime)
+			max = mid - 1;
+
+		else
+		{
+			found = true;
+			return mid;
+		}
+
+	}
+	found = false;
+	return min;
 }
 
 template <class T>

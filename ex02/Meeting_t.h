@@ -42,7 +42,7 @@ public:
 	//		1. if startingTime >= finishTime then invalid_argument exception will be thrown 
 	//      2. if startingTime or finishTime are out of valid bounds (0-24) invalid_argument exception will be thrown
 	
-	void init(const string& meetingTopic, const T& startingTime, const T& finishTime);
+	inline void init(const string& meetingTopic, const T& startingTime, const T& finishTime);
 
 
 	//	GENERAL NOTE: all logic regarding meeting time managment
@@ -153,7 +153,7 @@ inline bool Meeting_t<T>::operator==(const Meeting_t<T>& other) const
 
 
 template <class T>
-void Meeting_t<T>::init(const string& meetingTopic, const T& startingTime, const T& finishTime){
+inline void Meeting_t<T>::init(const string& meetingTopic, const T& startingTime, const T& finishTime){
 
 	// ensure arguments correctness
 	validateInitArguments(startingTime, finishTime);
@@ -193,7 +193,7 @@ inline bool Meeting_t<T>::operator < (const Meeting_t& other) const {
 }
 
 template <class T>
-ostream& Meeting_t<T>::outputTo(ostream& os) const
+inline ostream& Meeting_t<T>::outputTo(ostream& os) const
 {
 	os << startingTime << " - " << finishTime << ": " << meetingTopic;
 	return os;

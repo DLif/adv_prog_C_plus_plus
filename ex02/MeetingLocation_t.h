@@ -23,16 +23,13 @@ public:
 	//	NOTES:
 	//		1. if startingTime >= finishTime then invalid_argument exception will be thrown 
 	//      2. if startingTime or finishTime are out of valid bounds (0-24) invalid_argument exception will be thrown
-	 void init(const string& meetingTopic, const T& startingTime, const T& finishTime, const string& location);
+	inline void init(const string& meetingTopic, const T& startingTime, const T& finishTime, const string& location);
 
 	
 	// get the meeting location
 	inline string getMeetingLocation() const;
 
-	// change meeting location
-	// virtual because base implementation may not be sufficient in derived classes
-	inline virtual void changeMeetingLocation(const string& location);
-
+	
 
 protected:
 
@@ -64,13 +61,13 @@ inline string MeetingLocation_t<T>::getMeetingLocation() const
 
 template <class T> MeetingLocation_t<T>::~MeetingLocation_t() {
 
-	// empty destructor suffices, simply destorys all data members
+	// empty destructor suffices, simply destorys all data members (including base class)
 }
 
 
 
 template <class T>
-void MeetingLocation_t<T>::init(const string& meetingTopic, const T& startingTime, const T& finishTime, const string& location){
+inline void MeetingLocation_t<T>::init(const string& meetingTopic, const T& startingTime, const T& finishTime, const string& location){
 
 	// init the base object
 	Meeting_t<T>::init(meetingTopic, startingTime, finishTime);
@@ -80,15 +77,9 @@ void MeetingLocation_t<T>::init(const string& meetingTopic, const T& startingTim
 
 }
 
-template <class T>
-inline void MeetingLocation_t<T>::changeMeetingLocation(const string& location)
-{
-	this->location = location;
-}
-
 
 template <class T>
-ostream& MeetingLocation_t<T>::outputTo(ostream& os) const
+inline ostream& MeetingLocation_t<T>::outputTo(ostream& os) const
 {
 	Meeting_t<T>::outputTo(os);
 	os << ", at " << this->location;
