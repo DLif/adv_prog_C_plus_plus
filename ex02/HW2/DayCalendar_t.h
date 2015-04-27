@@ -30,25 +30,25 @@ public:
 	inline bool operator==(const DayCalendar_t<T>& other) const;        // returns true iff the other calendar contains
 																		// exactly the same meetings
 
-	virtual void addMeeting(const Meeting_t<T>* meeting);				// add a meeting to the calendar
+	void addMeeting(const Meeting_t<T>* meeting);				// add a meeting to the calendar
 																		// if the meeting's time overlaps(intersects) with an existing meeting
 																		// then invalid_argument exception will be thrown
 																	    // the meeting will be added in such a manner that the calendar will
 																		// remain sorted by meetings' starting hour
 
-	virtual Meeting_t<T>* removeMeeting(const T& startingTime);			// remove a meeting by its starting time
+	Meeting_t<T>* removeMeeting(const T& startingTime);			// remove a meeting by its starting time
 																		// returns the removed meeting if found
 																		// otherwise, if no such meeting exists, returns NULL
 
-	virtual Meeting_t<T>* findMeeting(const T& startingTime) const;    // find a meeting by its starting time
+	Meeting_t<T>* findMeeting(const T& startingTime) const;    // find a meeting by its starting time
 																	   // if no such meeting is found, returns NULL
 
-	inline virtual bool isEmpty() const;                               // returns true iff day calendar has no meetings
-	inline virtual size_t getMeetingsCount() const;					   // returns the number of meetings currently in day calendar
+	inline bool isEmpty() const;                               // returns true iff day calendar has no meetings
+	inline size_t getMeetingsCount() const;					   // returns the number of meetings currently in day calendar
 
-	virtual void deleteAll();										   // remove + delete all meetings in calendar
+	void deleteAll();										   // remove + delete all meetings in calendar
 
-	inline virtual void removeAll();                                   // empty calendar, removing all meetings (without deleting)
+	inline void removeAll();                                   // empty calendar, removing all meetings (without deleting)
 
 
 protected:
@@ -61,13 +61,11 @@ protected:
 																	   // virtual in order to ensure polymorphic calls from <<
 																	   // protected in order to enable deriving classes to call it
 
-	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
-																	   // in the base implementation, the vector is sorted according to the meetings' starting times
-																	   // this data member is protected, since we cannot predit all possible deriving classes
-																	   // for example, a RemoteDayCalendar that syncs the calendar with a cloud, will require access to the vector
-
 
 private:
+
+	vector<Meeting_t<T>*> meetings;									   // dynamic array/vector of meetings
+																	   // The vector is sorted according to the meetings starting times
 
 	// helper methods, to make the implementation of the base class functionalities more modular
 
