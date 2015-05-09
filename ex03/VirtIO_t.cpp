@@ -6,7 +6,7 @@
 
 virtIO_t::~virtIO_t()
 {
-	if (io_status != closed_e)
+	if (io_status_flag != closed_e)
 	{
 		// file is open, close it
 		fclose(filePtr);
@@ -18,7 +18,7 @@ virtIO_t::~virtIO_t()
 // the stream is closed, reading a writing from it will result in an exception
 // no IO buffer is currently used
 
-virtIO_t::virtIO_t() : io_status(virtIO_t::closed_e), currentBufferUsage(buffer_not_set)
+virtIO_t::virtIO_t() : io_status_flag(virtIO_t::closed_e), currentBufferUsage(buffer_not_set)
 {
 	// file name automatically constructed to be an emptry string
 }
@@ -36,12 +36,12 @@ virtIO_t::virtIO_t(const string& filePath, const virtIO_t::access_mode& accessMo
 	if (virtIO_t::open())
 	{
 		// opened the file successfully
-		this->io_status = virtIO_t::ok_e;
+		this->io_status_flag = virtIO_t::ok_e;
 	}
 	else
 	{
 		// some error occured
-		this->io_status = virtIO_t::cant_open_file_e;
+		this->io_status_flag = virtIO_t::cant_open_file_e;
 	}
 }
 
@@ -110,7 +110,7 @@ string virtIO_t::translateAccessMode() const {
 // method returns the file size/length in bytes
 size_t virtIO_t::getFileLen() const
 {
-	if (this->io_status == closed_e)
+	if (this->io_status_flag == closed_e)
 	{
 		throw logic_error("Stream is not connected to a file!");
 	}
@@ -127,7 +127,7 @@ size_t virtIO_t::getFileLen() const
 
 inline string virtIO_t::getFilePath() const
 {
-	if (this->io_status == closed_e)
+	if (this->io_status_flag == closed_e)
 	{
 		// there is no file open!
 		throw logic_error("Stream is not connected to a file!");
@@ -137,7 +137,7 @@ inline string virtIO_t::getFilePath() const
 
 inline virtIO_t::access_mode virtIO_t::getFileAccessMode() const
 {
-	if (this->io_status == closed_e)
+	if (this->io_status_flag == closed_e)
 	{
 		// there is no access mode!
 		throw logic_error("Stream is not connected to a file!");
@@ -148,29 +148,40 @@ inline virtIO_t::access_mode virtIO_t::getFileAccessMode() const
 
 inline bool virtIO_t::is_ok() const
 {
-	return this->io_status == ok_e;
+	return this->io_status_flag == ok_e;
 }
 
 inline bool virtIO_t::is_bad_access() const
 {
-	return this->io_status == bad_access_e;
+	return this->io_status_flag == bad_access_e;
 }
 
 inline bool virtIO_t::is_cant_open_file() const
 {
-	return this->io_status == cant_open_file_e;
+	return this->io_status_flag == cant_open_file_e;
 }
 
 inline bool virtIO_t::is_writeErr() const
 {
-	return this->io_status == writeErr_e;
+	return this->io_status_flag == writeErr_e;
 }
 
 inline bool virtIO_t::is_readErr() const
 {
-	return this->io_status == readErr_e;
+	return this->io_status_flag == readErr_e;
 }
 
+// protected method, to be used by deriving classes
+void virtIO_t::set_io_status(virtIO_t::io_status newStatus)
+{
+	this->io_status_flag = newStatus;
+
+}
+
+inline virtIO_t::io_status virtIO_t::getStatus() const
+{
+	return this->io_status_flag;
+}
 
 // returns true iff !is_ok(), meaning some error has occured
 // similar to ! operator implemented in std::ios class
@@ -182,7 +193,7 @@ inline bool virtIO_t::operator!() const
 // clear error status
 inline void virtIO_t::clear()
 {
-	this->io_status = ok_e;
+	this->io_status_flag = ok_e;
 }
 
 
@@ -190,7 +201,7 @@ inline void virtIO_t::clear()
 void virtIO_t::write(void *buff, size_t size, size_t count)
 {
 
-	if (this->io_status == closed_e)
+	if (this->io_status_flag == closed_e)
 	{
 		throw logic_error("The stream is not connected to a file!");
 	}
@@ -207,18 +218,14 @@ void virtIO_t::write(void *buff, size_t size, size_t count)
 	}
 
 	// save current position
-	long int current_pos = getCurrentPosition();
-	if (current_pos == -1L)
-	{
-		this->io_status = writeErr_e;
-		throw runtime_error("Write error (seek)");
-	}
+	// try to get current position, false indicate that the context is a write access
+	long int current_pos = findCurrentPosition(false);
 
 	// actually write
 	size_t num_elems = fwrite(buff, size, count, this->filePtr);
 	if (num_elems < count)
 	{
-		this->io_status = writeErr_e;
+		this->io_status_flag = writeErr_e;
 		// reposition file position to where it was BEFORE error
 		setFilePosition(current_pos);
 		throw runtime_error("Write error");
@@ -228,7 +235,7 @@ void virtIO_t::write(void *buff, size_t size, size_t count)
 void virtIO_t::read(const void *buff, size_t size, size_t count)
 {
 
-	if (this->io_status == closed_e)
+	if (this->io_status_flag == closed_e)
 	{
 		throw logic_error("The stream is not connected to a file!");
 	}
@@ -244,19 +251,14 @@ void virtIO_t::read(const void *buff, size_t size, size_t count)
 		throw logic_error("Invalid access: cannot read from file opened with write only access (including append only)");
 	}
 
-	// save current position
-	long int current_pos = getCurrentPosition();
-	if (current_pos == -1L)
-	{
-		this->io_status = readErr_e;
-		throw runtime_error("Read error (seek)");
-	}
+	// try to get current position, true indicate that the context is a read access
+	long int current_pos = findCurrentPosition(true);
 
 	// actually read
 	size_t num_elems = fread((void*)buff, size, count, this->filePtr);
 	if (num_elems < count)
 	{
-		this->io_status = readErr_e;
+		this->io_status_flag = readErr_e;
 		// reposition file position to where it was BEFORE error
 		setFilePosition(current_pos);
 		throw runtime_error("Read error");
@@ -265,11 +267,25 @@ void virtIO_t::read(const void *buff, size_t size, size_t count)
 }
 
 
+// method tries to find current position in the file
 // returns the current position inside the file
 // returns -1L in case of an error
-inline long int virtIO_t::getCurrentPosition() const
+// the parameter is only relevant for the error flag and exception
+// if readAccess == true and an error occures, io_status_flag is set to readErr_e
+// othewise, if readAccess == false then io_status_flag is set to writeErr_e
+
+inline long int virtIO_t::findCurrentPosition(bool readAccess)
 {
-	return ftell(this->filePtr);
+	long int pos;
+	if ((pos = ftell(this->filePtr)) == -1L)
+	{
+		// error occured
+		this->io_status_flag = (readAccess ? readErr_e : writeErr_e);
+		// throw exception
+		string errorMsg = readAccess ? "Read error" : "Write error";
+		throw runtime_error(errorMsg);
+	}
+	return pos;
 }
 
 // sets the file position to given position
@@ -315,16 +331,25 @@ void virtIO_t::operator,(size_t len)
 
 	if (this->currentBufferUsage == virtIO_t::input_buffer)
 	{
-		// read num_bytes
+		// read len bytes 
 		this->read(this->inputBuffer, 1, len);
 	}
 	else
 	{
-		// write num_bytes
+		// write len bytes 
 		this->write(this->outputBuffer, 1, len);
 	}
 
 	// reset the IO buffer, must be set before each usage
 	this->currentBufferUsage = virtIO_t::buffer_not_set;
 
+}
+
+
+inline FILE* virtIO_t::getFilePtr() const{
+	if (this->io_status_flag == closed_e)
+	{
+		return NULL;
+	}
+	return this->filePtr;
 }

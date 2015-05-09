@@ -101,9 +101,14 @@ protected:
 	// method sets the stream io status
 	void set_io_status(io_status newStatus);
 
+	// method tries to find current position in the file
 	// returns the current position inside the file
-	// returns -1L on failure
-	inline long int getCurrentPosition() const ;
+	// the parameter is only relevant for the error flag and exception (indications the context of the call)
+
+	// if readAccess == true and an error occures, io_status_flag is set to readErr_e
+	// othewise, if readAccess == false then io_status_flag is set to writeErr_e
+	// in both cases an exception will be thrown with a corresponding message
+	inline long int findCurrentPosition(bool readAccess);
 
 	// sets the current position file position (from start)
 	// returns true on success, false on failure
@@ -112,10 +117,14 @@ protected:
 	// sets the usage of the IOBuffer, either for input or output
 	inline void setIOBufferPurpose(IOBufferUsage usage);
 
+	// returns the current open file pointer
+	// if no file is currently open, returns NULL
+	inline FILE* getFilePtr() const;
+
 private:
 
 
-	io_status io_status;			   // io status as defined in the corresponding enum above
+	io_status io_status_flag;		   // io status as defined in the corresponding enum above
 	string filePath;                   // path of the file that was opened
 	access_mode accessMode;			   // access mode as defined in the corresponding enum above
 	FILE* filePtr;                     // actual file pointer

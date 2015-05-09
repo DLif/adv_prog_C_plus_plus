@@ -1,11 +1,12 @@
 #include "virtIO_t.h"
 
-class binIO_t {
+class binIO_t : public virtIO_t{
 
 public:
 
-	
-	binIO_t();    
+	// constructs an empty stream
+	// empty implmentation will suffice, simply calls the base empty constructor
+	binIO_t();     
 
 	// constructs stream + opens the file
 	// same logic as base class (accessMode will be expanded to binary equivelant mode)
@@ -35,5 +36,12 @@ public:
 	virtual binIO_t& operator<<(float f);
 	virtual binIO_t& operator>>(double d);
 	virtual binIO_t& operator<<(double d);
+
+protected: 
+
+	// this method translates our access mode to a corresponding string representation
+	// valid for usage with fopen C method
+	// this derives the base class implementation to add binary flag to each mode
+	virtual string translateAccessMode() const;
 
 };
