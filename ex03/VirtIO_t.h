@@ -1,3 +1,6 @@
+#ifndef _VIRTIO_H
+#define _VIRTIO_H
+
 #include <string>
 using namespace std;
 
@@ -22,6 +25,8 @@ public:
 	// this is the only case where an error flag is set without throwing an exception
 	// since, throwing exceptions from a constructor is considered bad practice.
 	virtIO_t(const string& filePath, const virtIO_t::access_mode& accessMode);
+
+
 
 	// if a file is currently open, closes the file
 	virtual ~virtIO_t();
@@ -105,10 +110,10 @@ protected:
 	// returns the current position inside the file
 	// the parameter is only relevant for the error flag and exception (indications the context of the call)
 
-	// if readAccess == true and an error occures, io_status_flag is set to readErr_e
-	// othewise, if readAccess == false then io_status_flag is set to writeErr_e
-	// in both cases an exception will be thrown with a corresponding message
-	inline long int findCurrentPosition(bool readAccess);
+	// locates correct position in the file 
+	// in case of an error, -1L is returned
+	// note that this method assumes that a file is open
+	inline long findCurrentPosition() const;
 
 	// sets the current position file position (from start)
 	// returns true on success, false on failure
@@ -120,6 +125,12 @@ protected:
 	// returns the current open file pointer
 	// if no file is currently open, returns NULL
 	inline FILE* getFilePtr() const;
+
+	// checks the following
+	// 1. the stream is not closed
+	// 2. the stream is ok (no error flag is set)
+	// if no one those does not hold, an appropriate exception is thrown
+	inline void checkStreamValidity() const;
 
 private:
 
@@ -144,3 +155,5 @@ private:
 
 };
 
+
+#endif

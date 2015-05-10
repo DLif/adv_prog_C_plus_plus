@@ -1,3 +1,6 @@
+#ifndef _ASCII_IO_H
+#define _ASCII_IO_H
+
 #include "virtIO_t.h"
 
 class asciiIO_t : public virtIO_t {
@@ -36,7 +39,7 @@ public:
 	virtual asciiIO_t& operator<<(double d);
 
 
-protected:
+private:
 
 	// a generic method to read into the given container, one element, according to the given parse string
 	// this method already sets the io_status_flag to readErr_e in case of an error and throws exceptions
@@ -50,3 +53,5 @@ protected:
 	void writeByParseString(void* container, const string& parse_string);
 
 };
+
+#endif

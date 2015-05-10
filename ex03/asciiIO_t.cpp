@@ -13,13 +13,18 @@ asciiIO_t::asciiIO_t(const string& path, const virtIO_t::access_mode& accessMode
 
 asciiIO_t::~asciiIO_t(){
 	// base implmentation suffices
+	// closes the file if open
 }
 
 void asciiIO_t::readByParseString(void* container, const string& parse_string)
 {
-	// get current position, true indicates this is a read
-	// this may thrown an exception and set an error flag
-	long currentPos = this->findCurrentPosition(true);
+	// get current position
+	long currentPos = this->findCurrentPosition();
+	if (currentPos == -1L)
+	{
+		this->set_io_status(virtIO_t::readErr_e);
+		throw runtime_error("Read error(seek)");
+	}
 
 	// read one object from the file and store in the container
 	if (fscanf(this->getFilePtr(), parse_string.c_str(), container) < 1)
@@ -30,14 +35,19 @@ void asciiIO_t::readByParseString(void* container, const string& parse_string)
 
 		throw runtime_error("Read error");
 	}
+
 }
 
 
 void asciiIO_t::writeByParseString(void* container, const string& parse_string)
 {
-	// get current position, false indicates this is a write
-	// this may thrown an exception and set an error flag
-	long currentPos = this->findCurrentPosition(false);
+	// get current position
+	long currentPos = this->findCurrentPosition();
+	if (currentPos == -1L)
+	{
+		this->set_io_status(virtIO_t::readErr_e);
+		throw runtime_error("Write error(seek)");
+	}
 
 	// write one object from from the container into the file
 	if (fprintf(this->getFilePtr(), parse_string.c_str(), container) < 1)
@@ -63,23 +73,94 @@ asciiIO_t& asciiIO_t::operator<<(char c)
 }
 asciiIO_t& asciiIO_t::operator>>(unsigned char c)
 {
+	// same as signed, read a character
 	readByParseString(&c, "%c");
 	return *this;
 }
-asciiIO_t& asciiIO_t::operator<<(unsigned char c);
-asciiIO_t& asciiIO_t::operator>>(short s);
-asciiIO_t& asciiIO_t::operator<<(short s);
-asciiIO_t& asciiIO_t::operator>>(unsigned short s);
-asciiIO_t& asciiIO_t::operator<<(unsigned short s);
-asciiIO_t& asciiIO_t::operator>>(int i);
-asciiIO_t& asciiIO_t::operator<<(int i);
-asciiIO_t& asciiIO_t::operator>>(unsigned int i);
-asciiIO_t& asciiIO_t::operator<<(unsigned int i);
-asciiIO_t& asciiIO_t::operator>>(long i);
-asciiIO_t& asciiIO_t::operator<<(long i);
-asciiIO_t& asciiIO_t::operator>>(unsigned long i);
-asciiIO_t& asciiIO_t::operator<<(unsigned long i);
-asciiIO_t& asciiIO_t::operator>>(float f);
-asciiIO_t& asciiIO_t::operator<<(float f);
-asciiIO_t& asciiIO_t::operator>>(double d);
-asciiIO_t& asciiIO_t::operator<<(double d);
+asciiIO_t& asciiIO_t::operator<<(unsigned char c)
+{
+	// same as signed, write a character
+	writeByParseString(&c, "%c");
+	return *this;
+
+}
+asciiIO_t& asciiIO_t::operator>>(short s)
+{
+	readByParseString(&s, "%hd");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(short s)
+{
+	writeByParseString(&s, "%hd");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator>>(unsigned short s)
+{
+	readByParseString(&s, "%hu");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(unsigned short s)
+{
+	writeByParseString(&s, "%hu");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator>>(int i)
+{
+	readByParseString(&i, "%d");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(int i)
+{
+	writeByParseString(&i, "%d");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator>>(unsigned int i)
+{
+	readByParseString(&i, "%u");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(unsigned int i)
+{
+	writeByParseString(&i, "%u");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator>>(long i)
+{
+	readByParseString(&i, "%l");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(long i)
+{
+	writeByParseString(&i, "%l");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator>>(unsigned long i)
+{
+	readByParseString(&i, "%lu");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(unsigned long i)
+{
+	writeByParseString(&i, "%lu");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator>>(float f)
+{
+	readByParseString(&f, "%f");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(float f)
+{
+	writeByParseString(&f, "%f");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator>>(double d)
+{
+	readByParseString(&d, "%lf");
+	return *this;
+}
+asciiIO_t& asciiIO_t::operator<<(double d)
+{
+	writeByParseString(&d, "%lf");
+	return *this;
+}

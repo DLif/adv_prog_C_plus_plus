@@ -1,3 +1,6 @@
+#ifndef _BINIO_H
+#define _BINIO_H
+
 #include "virtIO_t.h"
 
 class binIO_t : public virtIO_t{
@@ -45,3 +48,5 @@ protected:
 	virtual string translateAccessMode() const;
 
 };
+
+#endif

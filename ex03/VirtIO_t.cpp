@@ -197,10 +197,8 @@ inline void virtIO_t::clear()
 }
 
 
-
-void virtIO_t::write(void *buff, size_t size, size_t count)
+void virtIO_t::checkStreamValidity() const
 {
-
 	if (this->io_status_flag == closed_e)
 	{
 		throw logic_error("The stream is not connected to a file!");
@@ -211,15 +209,28 @@ void virtIO_t::write(void *buff, size_t size, size_t count)
 		throw logic_error("You must clear the error flag before writing again");
 	}
 
+}
+
+
+void virtIO_t::write(void *buff, size_t size, size_t count)
+{
+
+	checkStreamValidity();
+
 	if (this->accessMode == read_m)
 	{
 		// read only mode
 		throw logic_error("Invalid access: cannot write to file opened with read only access");
 	}
 
-	// save current position
-	// try to get current position, false indicate that the context is a write access
-	long int current_pos = findCurrentPosition(false);
+
+	// try to get current position
+	long  current_pos = findCurrentPosition();
+	if (current_pos == -1L)
+	{
+		this->io_status_flag = writeErr_e;
+		throw runtime_error("Write error (seek)");
+	}
 
 	// actually write
 	size_t num_elems = fwrite(buff, size, count, this->filePtr);
@@ -251,8 +262,13 @@ void virtIO_t::read(const void *buff, size_t size, size_t count)
 		throw logic_error("Invalid access: cannot read from file opened with write only access (including append only)");
 	}
 
-	// try to get current position, true indicate that the context is a read access
-	long int current_pos = findCurrentPosition(true);
+	// try to get current position
+	long  current_pos = findCurrentPosition();
+	if (current_pos == -1L)
+	{
+		this->io_status_flag = readErr_e;
+		throw runtime_error("Read error (seek)");
+	}
 
 	// actually read
 	size_t num_elems = fread((void*)buff, size, count, this->filePtr);
@@ -270,22 +286,10 @@ void virtIO_t::read(const void *buff, size_t size, size_t count)
 // method tries to find current position in the file
 // returns the current position inside the file
 // returns -1L in case of an error
-// the parameter is only relevant for the error flag and exception
-// if readAccess == true and an error occures, io_status_flag is set to readErr_e
-// othewise, if readAccess == false then io_status_flag is set to writeErr_e
 
-inline long int virtIO_t::findCurrentPosition(bool readAccess)
+inline long virtIO_t::findCurrentPosition() const
 {
-	long int pos;
-	if ((pos = ftell(this->filePtr)) == -1L)
-	{
-		// error occured
-		this->io_status_flag = (readAccess ? readErr_e : writeErr_e);
-		// throw exception
-		string errorMsg = readAccess ? "Read error" : "Write error";
-		throw runtime_error(errorMsg);
-	}
-	return pos;
+	return ftell(this->filePtr);
 }
 
 // sets the file position to given position
