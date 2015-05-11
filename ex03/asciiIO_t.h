@@ -52,12 +52,14 @@ private:
 	// a generic method to read into the given container, one element, according to the given parse string
 	// this method already sets the io_status_flag to readErr_e in case of an error and throws exceptions
 	// its also important to note that in case of a read error, the seek position will remain the same as before the read
+	// templating is not needed here, because we pass the address of the container
 	void readByParseString(void* container, const string& parse_string) ;
 
 
 	// a generic method to write into the file from given container, one element, according to the given parse string
 	// this method already sets the io_status_flag to writeErr_e in case of an error and throws exceptions
 	// its also important to note that in case of a write error, the seek position will remain the same as before the write
+	// templating is needed here, because we're passing the value itself and we need to declare its type (can't deref void pointer)
 	template <typename T> void writeByParseString(const T& container, const string& parse_string) ;
 
 };
