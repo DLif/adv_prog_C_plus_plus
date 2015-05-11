@@ -55,11 +55,11 @@ protected:
 
 // extend the translation method to fit our needs
 // this will cause the files to be opened as binary files
-// by adding the binary flag "b" before each possible access mode
+// by adding the binary flag "b" after each possible access mode
 inline string binIO_t::translateAccessMode() const
 {
 	// force the binary flag, causing the file to be opened in binary mode
-	return "b" + virtIO_t::translateAccessMode();
+	return  virtIO_t::translateAccessMode() + "b";
 }
 
 
