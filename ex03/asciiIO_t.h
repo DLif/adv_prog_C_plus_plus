@@ -7,15 +7,20 @@ class asciiIO_t : public virtIO_t {
 
 public:
 
-	// default implementation will suffice, 
-	asciiIO_t();
 
-	// constructs stream + opens the file
-	// same logic as base class (accessMode will be expanded to binary equivelant mode)
+	// constructs an ascii file stream
+	// same logic as base class 
 	asciiIO_t(const string& path, const virtIO_t::access_mode& accessMode);
 
 	// if the file is currently open, closes it (implemented in base constructor)
 	virtual ~asciiIO_t();
+
+
+	// implementation for the various operators
+	// note that for ascii IO, all operators are implemented with readByParseString and writeByParseString
+	// exceptions and flag handling is already provided by these methods (defined below)
+	// also note that in case of an error, the stream will rewind its position to the position it were
+	// before calling the operator [ same behaviour as in standard C++ IO ]
 
 	virtual asciiIO_t& operator>>(char c);
 	virtual asciiIO_t& operator<<(char c);

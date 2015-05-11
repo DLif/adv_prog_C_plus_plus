@@ -1,12 +1,8 @@
 #include "asciiIO_t.h"
 
-// initializes an empty ascii stream without opening a file
-asciiIO_t::asciiIO_t(){
-	// let the base class do all the work
-}
 
-// intialize a stream and open a file in ascii (text) mode
-// again, let the base class do all the work (base class opens the file in text mode by default)
+// intialize an ascii file stream
+// again, let the base class do all the work
 asciiIO_t::asciiIO_t(const string& path, const virtIO_t::access_mode& accessMode) : virtIO_t(path, accessMode)
 {}
 
@@ -19,7 +15,7 @@ asciiIO_t::~asciiIO_t(){
 void asciiIO_t::readByParseString(void* container, const string& parse_string)
 {
 
-	this->checkStreamValidity();
+	this->checkReadAccessiblity();
 
 	// get current position
 	long currentPos = this->findCurrentPosition();
@@ -45,7 +41,7 @@ void asciiIO_t::readByParseString(void* container, const string& parse_string)
 void asciiIO_t::writeByParseString(void* container, const string& parse_string)
 {
 
-	this->checkStreamValidity();
+	this->checkWriteAccessiblity();
 
 	// get current position
 	long currentPos = this->findCurrentPosition();

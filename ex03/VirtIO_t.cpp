@@ -6,34 +6,61 @@
 
 virtIO_t::~virtIO_t()
 {
-	if (io_status_flag != closed_e)
-	{
-		// file is open, close it
+	// simply close the file
+	if (this->io_status_flag != not_open_e){
 		fclose(filePtr);
 	}
-
 }
 
-// construct an abstract file stream, without actually openning a file
-// the stream is closed, reading a writing from it will result in an exception
-// no IO buffer is currently used
+// private constuctor
+// construct an abstract file stream
+// basic initialization
+// note that access mode and filePath should be initailized by an other constructer designed to do so
+// to be used only by base class and cannot be directly used from deriving classes or outside users
+// (this way, the fileName and accessMode will always be set by the other base constructor)
 
-virtIO_t::virtIO_t() : io_status_flag(virtIO_t::closed_e), currentBufferUsage(buffer_not_set)
+virtIO_t::virtIO_t() : 
+	currentBufferUsage(buffer_not_set),    /* current IO buffer not set by user */
+	inputBuffer(NULL),                     /* no input buffer set */
+	outputBuffer(NULL),                    /* no output buffer set */
+	filePtr(NULL),                         /* no file is opened */
+	io_status_flag(not_open_e)             /* status is not open */
 {
-	// file name automatically constructed to be an emptry string
+	
 }
 
 
-// construct an abstract stream and open the file with given access mode
-// in case of an error, io_status will be set to cant_open_file_e, but an exception will not be thrown
+// construct an abstract stream with given filePath and accessMode
+// this method only initailizes the stream state and 
+// IMPORTANT: does not open the file, instead, call virtIO_t::open() member function
+
+// NOTE: after the construction the file is not open, so, reading or writing from the stream will result in an exception
 virtIO_t::virtIO_t(const string& filePath, const virtIO_t::access_mode& accessMode) : virtIO_t()
 {
 	// provide access mode and file path
 	this->accessMode = accessMode;
 	this->filePath = filePath;
+}
+
+
+
+// method opens file at current filePath, with accessMode
+// in case of an error (cannot open file for some reason), io_status_flag will be set to cant_open_file_e
+// and an exception will be thrown
+// otherwise, if everything is ok, status flag will be set to ok_e
+
+void virtIO_t::open()
+{
+
+	// fetch the open mode for the C function fread (note that this is a virtual call)
+	// binary IO for example, will want to append a 'b' to the access mode
+	string cOpenMode = translateAccessMode();
+
+	// try to open the given file at filePath with given mode
+	filePtr = fopen(filePath.c_str(), cOpenMode.c_str());
 
 	// open the file 
-	if (virtIO_t::open())
+	if (filePtr)
 	{
 		// opened the file successfully
 		this->io_status_flag = virtIO_t::ok_e;
@@ -42,33 +69,14 @@ virtIO_t::virtIO_t(const string& filePath, const virtIO_t::access_mode& accessMo
 	{
 		// some error occured
 		this->io_status_flag = virtIO_t::cant_open_file_e;
+		throw runtime_error("Failed to open file: " + filePath);
 	}
+
 }
 
 
-
-// method opens file at current filePath
-// returns false if some error occured, filePtr will point to NULL on error
-// returns true if succesfull, filePtr will point to the opended file resource
-bool virtIO_t::open()
-{
-	// fetch the open mode for the C function fread (note that this is a virtual call)
-	string cOpenMode = translateAccessMode();
-
-	// try to open the given file at filePath with given mode
-	filePtr = fopen(filePath.c_str(), cOpenMode.c_str());
-
-	if (filePtr == NULL)
-	{
-		// error occured
-		return false; 
-	}
-	return true;
-
-}
-
-// this method translates accessMode into the C equivalent string representation
-// note that this is a virtual function, and deriving classes may alter the access mode according to their needs
+// this method translates accessMode into the C equivalent string representation to be used by fopen(..) C method
+// note that this is a virtual function, and deriving classes may alter the access mode according to their needs (example: binary)
 string virtIO_t::translateAccessMode() const {
 
 	switch (accessMode)
@@ -110,9 +118,9 @@ string virtIO_t::translateAccessMode() const {
 // method returns the file size/length in bytes
 size_t virtIO_t::getFileLen() const
 {
-	if (this->io_status_flag == closed_e)
+	if (this->io_status_flag == not_open_e)
 	{
-		throw logic_error("Stream is not connected to a file!");
+		throw logic_error("Error: file was not openned!");
 	}
 	// use C function to fetch file size
 	struct stat fileStats;
@@ -128,32 +136,11 @@ size_t virtIO_t::getFileLen() const
 
 
 
-void virtIO_t::checkStreamValidity() const
-{
-	if (this->io_status_flag == closed_e)
-	{
-		throw logic_error("The stream is not connected to a file!");
-	}
-
-	if (!this->is_ok())
-	{
-		throw logic_error("You must clear the error flag before writing again");
-	}
-
-}
-
-
 void virtIO_t::write(void *buff, size_t size, size_t count)
 {
 
-	checkStreamValidity();
-
-	if (this->accessMode == read_m)
-	{
-		// read only mode
-		throw logic_error("Invalid access: cannot write to file opened with read only access");
-	}
-
+	// see if we can perform this action
+	this->checkWriteAccessiblity();
 
 	// try to get current position
 	long  current_pos = findCurrentPosition();
@@ -180,13 +167,8 @@ void virtIO_t::write(void *buff, size_t size, size_t count)
 void virtIO_t::read(const void *buff, size_t size, size_t count)
 {
 
-	checkStreamValidity();
-
-	if (this->accessMode == append_m || this->accessMode == write_m)
-	{
-		// write only mode
-		throw logic_error("Invalid access: cannot read from file opened with write only access (including append only)");
-	}
+	// see if we can perform this action
+	this->checkReadAccessiblity();
 
 	// try to get current position
 	long  current_pos = findCurrentPosition();
@@ -222,20 +204,32 @@ void virtIO_t::operator,(size_t len)
 		throw logic_error("You must set the IO buffer first with << or >> operator !");
 	}
 
-	if (this->currentBufferUsage == virtIO_t::input_buffer)
-	{
-		// read len bytes 
-		this->read(this->inputBuffer, 1, len);
+	try{
+
+
+		if (this->currentBufferUsage == virtIO_t::input_buffer)
+		{
+			// read len bytes 
+			this->read(this->inputBuffer, 1, len);
+		}
+		else
+		{
+			// write len bytes 
+			this->write(this->outputBuffer, 1, len);
+		}
+
+		// reset the IO buffer, must be set before each usage
+		this->currentBufferUsage = virtIO_t::buffer_not_set;
 	}
-	else
+	catch (...)
 	{
-		// write len bytes 
-		this->write(this->outputBuffer, 1, len);
+		// reset the IO buffer, must be set before each usage, even in case of an error
+		this->currentBufferUsage = virtIO_t::buffer_not_set;
+		// re-throw exception
+		throw;
 	}
 
-	// reset the IO buffer, must be set before each usage
-	this->currentBufferUsage = virtIO_t::buffer_not_set;
-
+	
 
 
 }

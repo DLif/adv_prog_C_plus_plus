@@ -4,13 +4,8 @@
 binIO_t::~binIO_t()
 {}
 
-// initializes an empty binary stream without opening a file
-binIO_t::binIO_t()
-{
-	// let the base class do all the work
-}
 
-// construct a binary stream and open the file with access mode
+// construct a binary stream with given path and accessMode
 binIO_t::binIO_t(const string& path, const virtIO_t::access_mode& accessMode) : virtIO_t(path, accessMode)
-{ } 
+{} 
 

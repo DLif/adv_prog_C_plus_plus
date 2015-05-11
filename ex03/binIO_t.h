@@ -7,18 +7,20 @@ class binIO_t : public virtIO_t{
 
 public:
 
-	// constructs an empty stream
-	// empty implmentation will suffice, simply calls the base empty constructor
-	binIO_t();     
-
-	// constructs stream + opens the file
-	// same logic as base class (accessMode will be expanded to binary equivelant mode)
+	  
+	// constructs a binary file stream with given file path and accessMode
+	// simply calls the base constructor
 	binIO_t(const string& path, const virtIO_t::access_mode& accessMode);
 	
 	// if the file is currently open, closes it (implemented in base constructor)
 	virtual ~binIO_t(); 
 
 	// implementation for the various operators
+	// note that for binary IO, all operators are implemented with write/read methods
+	// and thus exceptions and flag handling is already provided by the base class
+	// also note that in case of an error, the stream will rewind its position to the position it were
+	// before calling the operator [ same behaviour as in standard C++ IO ]
+
 	virtual binIO_t& operator>>(char c);
 	virtual binIO_t& operator<<(char c);
 	virtual binIO_t& operator>>(unsigned char c);
@@ -44,12 +46,10 @@ protected:
 
 	// this method translates our access mode to a corresponding string representation
 	// valid for usage with fopen C method
-	// this derives the base class implementation to add binary flag to each mode
+	// this overrides the base class implementation to add binary flag to each mode
 	virtual string translateAccessMode() const;
 
 };
-
-
 
 
 
@@ -63,9 +63,6 @@ inline string binIO_t::translateAccessMode() const
 }
 
 
-
-// general notes: all these methods use read,write already implemented in the base class
-// these methods already take of exceptions throwing and error flag handling
 
 inline binIO_t& binIO_t::operator>>(char c){
 
