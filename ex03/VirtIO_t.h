@@ -1,6 +1,5 @@
 #ifndef _VIRTIO_H
 #define _VIRTIO_H
-#define _CRT_SECURE_NO_WARNINGS
 
 #include <string>
 using namespace std;
@@ -42,8 +41,8 @@ public:
 	// if a file is currently open, closes the file
 	virtual ~virtIO_t();
 
-	inline virtIO_t& operator>>(void* output_buff);       // sets output buffer
-	inline virtIO_t& operator<<(const void* input_buff);  // sets input buffer
+	inline virtIO_t& operator>>(void* output_buff);       // sets output buffer (to output to)
+	inline virtIO_t& operator<<(const void* input_buff);  // sets input buffer (to read from)
 
 	// pure virtual read/write operators
 	// pure virtual - because each deriving class may implement these operations differently
@@ -124,6 +123,22 @@ public:
 	inline void clear();
 
 
+	// locates correct position in the file 
+	// in case of an error, -1L is returned
+	// if file is not open, an exception is thrown
+
+	inline long findCurrentPosition() const;
+
+	// sets the current file position (from start)
+	// returns true on success, false on failure
+	// if file is not open, an exception is thrown
+	inline bool setFilePosition(long int position) const;
+
+	// flushes the file
+	// returns true on success, returns false otherwise
+	// if file is not open, an exception is thrown
+	inline bool flush() const;
+
 protected:
 
 
@@ -137,16 +152,6 @@ protected:
 	void set_io_status(io_status newStatus);
 
 	
-	// locates correct position in the file 
-	// in case of an error, -1L is returned
-	// note that this method assumes that a file is open
-	inline long findCurrentPosition() const;
-
-	// sets the current file position (from start)
-	// returns true on success, false on failure
-	// note that this method assumes that a file is open
-	inline bool setFilePosition(long int position) const;
-
 	// returns the current open file pointer
 	// if no file is currently open, returns NULL
 	inline FILE* getFilePtr() const;
@@ -226,6 +231,10 @@ inline virtIO_t& virtIO_t::operator<<(const void* buffer)
 
 inline long virtIO_t::findCurrentPosition() const
 {
+	if (io_status_flag == not_open_e)
+	{
+		throw logic_error("Error: file is not open! Use virtIO_t::open() first");
+	}
 	return ftell(this->filePtr);
 }
 
@@ -233,7 +242,23 @@ inline long virtIO_t::findCurrentPosition() const
 // returns true on success, false otherwise
 inline bool  virtIO_t::setFilePosition(long int position) const
 {
+	if (io_status_flag == not_open_e)
+	{
+		throw logic_error("Error: file is not open! Use virtIO_t::open() first");
+	}
 	return fseek(this->filePtr, position, SEEK_SET) == 0;
+}
+
+// flushes file to storage
+// returns true on success, false otherwise
+// if file is not open, exception is thrown 
+inline bool virtIO_t::flush() const
+{
+	if (io_status_flag == not_open_e)
+	{
+		throw logic_error("Error: file is not open! Use virtIO_t::open() first");
+	}
+	return fflush(filePtr) == 0;
 }
 
 

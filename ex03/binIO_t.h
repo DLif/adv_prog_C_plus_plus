@@ -7,6 +7,9 @@ class binIO_t : public virtIO_t{
 
 public:
 
+	// do not hide operators >> << for the void buffers
+	using virtIO_t::operator<<;
+	using virtIO_t::operator>>;
 	  
 	// constructs a binary file stream with given file path and accessMode
 	// simply calls the base constructor
