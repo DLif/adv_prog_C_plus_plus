@@ -115,8 +115,8 @@ public:
 	// - in case access is not valid, io error flag will be set to bad_access_e and an exception will be thrown
 	// - in case the file was not opened previously by calling open(..), or the stream is not ok_e, an exception will be thrown
 
-	void write(void *buff, size_t size, size_t count);
-	void read(const void *buff, size_t size, size_t count);
+	void write(const void *buff, size_t size, size_t count);  // write from buff into the file
+	void read(void *buff, size_t size, size_t count);         // read from the file into buff
 
 	// if the file is open, resets the status flag to ok_e
 	// otherwise, throws an exception

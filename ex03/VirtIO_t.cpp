@@ -136,7 +136,7 @@ size_t virtIO_t::getFileLen() const
 
 
 
-void virtIO_t::write(void *buff, size_t size, size_t count)
+void virtIO_t::write(const void *buff, size_t size, size_t count)
 {
 
 	// see if we can perform this action
@@ -164,7 +164,7 @@ void virtIO_t::write(void *buff, size_t size, size_t count)
 
 
 
-void virtIO_t::read(const void *buff, size_t size, size_t count)
+void virtIO_t::read(void *buff, size_t size, size_t count)
 {
 
 	// see if we can perform this action
@@ -210,13 +210,13 @@ void virtIO_t::operator,(size_t len)
 
 		if (this->currentBufferUsage == virtIO_t::input_buffer)
 		{
-			// read len bytes 
-			this->read(this->inputBuffer, 1, len);
+			// write len bytes from the input buffer into the file
+			this->write(this->inputBuffer, 1, len);
 		}
 		else
 		{
-			// write len bytes 
-			this->write(this->outputBuffer, 1, len);
+			// read len bytes from the file into outputBuffer 
+			this->read(this->outputBuffer, 1, len);
 		}
 
 		// reset the IO buffer, must be set before each usage
