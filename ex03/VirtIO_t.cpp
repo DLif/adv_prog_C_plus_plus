@@ -125,76 +125,7 @@ size_t virtIO_t::getFileLen() const
 	return fileStats.st_size;
 }
 
-inline string virtIO_t::getFilePath() const
-{
-	if (this->io_status_flag == closed_e)
-	{
-		// there is no file open!
-		throw logic_error("Stream is not connected to a file!");
-	}
-	return this->filePath;
-}
 
-inline virtIO_t::access_mode virtIO_t::getFileAccessMode() const
-{
-	if (this->io_status_flag == closed_e)
-	{
-		// there is no access mode!
-		throw logic_error("Stream is not connected to a file!");
-	}
-
-	return this->accessMode;
-}
-
-inline bool virtIO_t::is_ok() const
-{
-	return this->io_status_flag == ok_e;
-}
-
-inline bool virtIO_t::is_bad_access() const
-{
-	return this->io_status_flag == bad_access_e;
-}
-
-inline bool virtIO_t::is_cant_open_file() const
-{
-	return this->io_status_flag == cant_open_file_e;
-}
-
-inline bool virtIO_t::is_writeErr() const
-{
-	return this->io_status_flag == writeErr_e;
-}
-
-inline bool virtIO_t::is_readErr() const
-{
-	return this->io_status_flag == readErr_e;
-}
-
-// protected method, to be used by deriving classes
-void virtIO_t::set_io_status(virtIO_t::io_status newStatus)
-{
-	this->io_status_flag = newStatus;
-
-}
-
-inline virtIO_t::io_status virtIO_t::getStatus() const
-{
-	return this->io_status_flag;
-}
-
-// returns true iff !is_ok(), meaning some error has occured
-// similar to ! operator implemented in std::ios class
-inline bool virtIO_t::operator!() const
-{
-	return !this->is_ok();
-}
-
-// clear error status
-inline void virtIO_t::clear()
-{
-	this->io_status_flag = ok_e;
-}
 
 
 void virtIO_t::checkStreamValidity() const
@@ -243,18 +174,13 @@ void virtIO_t::write(void *buff, size_t size, size_t count)
 	}
 
 }
+
+
+
 void virtIO_t::read(const void *buff, size_t size, size_t count)
 {
 
-	if (this->io_status_flag == closed_e)
-	{
-		throw logic_error("The stream is not connected to a file!");
-	}
-
-	if (!this->is_ok())
-	{
-		throw logic_error("You must clear the error flag before reading again");
-	}
+	checkStreamValidity();
 
 	if (this->accessMode == append_m || this->accessMode == write_m)
 	{
@@ -283,46 +209,9 @@ void virtIO_t::read(const void *buff, size_t size, size_t count)
 }
 
 
-// method tries to find current position in the file
-// returns the current position inside the file
-// returns -1L in case of an error
-
-inline long virtIO_t::findCurrentPosition() const
-{
-	return ftell(this->filePtr);
-}
-
-// sets the file position to given position
-// returns true on success, false otherwise
-inline bool  virtIO_t::setFilePosition(long int position) const
-{
-	return fseek(this->filePtr, position, SEEK_SET) == 0;
-}
 
 
-// set output buffer
-virtIO_t& virtIO_t::operator>>(void* buffer)
-{
-	this->setIOBufferPurpose(output_buffer);
-	this->outputBuffer = buffer;
 
-	return *this;
-}
-
-// set input buffer
-virtIO_t& virtIO_t::operator<<(const void* buffer)
-{
-	this->setIOBufferPurpose(input_buffer);
-	this->inputBuffer = buffer;
-
-	return *this;
-}
-
-// set user IO buffer purpose: input/output or niether of them
-inline void virtIO_t::setIOBufferPurpose(virtIO_t::IOBufferUsage usage)
-{
-	this->currentBufferUsage = usage;
-}
 
 
 // valid for both ASCII and binary representations (since an ascii char fit exactly in one byte, thus writing them is the same)
@@ -347,13 +236,8 @@ void virtIO_t::operator,(size_t len)
 	// reset the IO buffer, must be set before each usage
 	this->currentBufferUsage = virtIO_t::buffer_not_set;
 
+
+
 }
 
 
-inline FILE* virtIO_t::getFilePtr() const{
-	if (this->io_status_flag == closed_e)
-	{
-		return NULL;
-	}
-	return this->filePtr;
-}

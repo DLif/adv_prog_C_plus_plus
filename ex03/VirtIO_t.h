@@ -119,9 +119,6 @@ protected:
 	// returns true on success, false on failure
 	inline bool setFilePosition(long int position) const;
 
-	// sets the usage of the IOBuffer, either for input or output
-	inline void setIOBufferPurpose(IOBufferUsage usage);
-
 	// returns the current open file pointer
 	// if no file is currently open, returns NULL
 	inline FILE* getFilePtr() const;
@@ -154,6 +151,129 @@ private:
 
 
 };
+
+
+
+
+
+// set output buffer
+inline virtIO_t& virtIO_t::operator>>(void* buffer)
+{
+	this->currentBufferUsage = output_buffer;
+	this->outputBuffer = buffer;
+
+	return *this;
+}
+
+// set input buffer
+inline virtIO_t& virtIO_t::operator<<(const void* buffer)
+{
+	this->currentBufferUsage = input_buffer;
+	this->inputBuffer = buffer;
+
+	return *this;
+}
+
+
+// method tries to find current position in the file
+// returns the current position inside the file
+// returns -1L in case of an error
+
+inline long virtIO_t::findCurrentPosition() const
+{
+	return ftell(this->filePtr);
+}
+
+// sets the file position to given position
+// returns true on success, false otherwise
+inline bool  virtIO_t::setFilePosition(long int position) const
+{
+	return fseek(this->filePtr, position, SEEK_SET) == 0;
+}
+
+
+inline FILE* virtIO_t::getFilePtr() const{
+	if (this->io_status_flag == closed_e)
+	{
+		return NULL;
+	}
+	return this->filePtr;
+}
+
+
+inline bool virtIO_t::is_cant_open_file() const
+{
+	return this->io_status_flag == cant_open_file_e;
+}
+
+inline bool virtIO_t::is_writeErr() const
+{
+	return this->io_status_flag == writeErr_e;
+}
+
+inline bool virtIO_t::is_readErr() const
+{
+	return this->io_status_flag == readErr_e;
+}
+
+// protected method, to be used by deriving classes
+inline void virtIO_t::set_io_status(virtIO_t::io_status newStatus)
+{
+	this->io_status_flag = newStatus;
+
+}
+
+inline virtIO_t::io_status virtIO_t::getStatus() const
+{
+	return this->io_status_flag;
+}
+
+// returns true iff !is_ok(), meaning some error has occured
+// similar to ! operator implemented in std::ios class
+inline bool virtIO_t::operator!() const
+{
+	return !this->is_ok();
+}
+
+
+
+inline string virtIO_t::getFilePath() const
+{
+	if (this->io_status_flag == closed_e)
+	{
+		// there is no file open!
+		throw logic_error("Stream is not connected to a file!");
+	}
+	return this->filePath;
+}
+
+inline virtIO_t::access_mode virtIO_t::getFileAccessMode() const
+{
+	if (this->io_status_flag == closed_e)
+	{
+		// there is no access mode!
+		throw logic_error("Stream is not connected to a file!");
+	}
+
+	return this->accessMode;
+}
+
+inline bool virtIO_t::is_ok() const
+{
+	return this->io_status_flag == ok_e;
+}
+
+inline bool virtIO_t::is_bad_access() const
+{
+	return this->io_status_flag == bad_access_e;
+}
+
+
+// clear error status
+inline void virtIO_t::clear()
+{
+	this->io_status_flag = ok_e;
+}
 
 
 #endif
