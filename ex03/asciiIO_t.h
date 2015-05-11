@@ -22,25 +22,25 @@ public:
 	// also note that in case of an error, the stream will rewind its position to the position it were
 	// before calling the operator [ same behaviour as in standard C++ IO ]
 
-	virtual asciiIO_t& operator>>(char c);
+	virtual asciiIO_t& operator>>(char& c);
 	virtual asciiIO_t& operator<<(char c);
-	virtual asciiIO_t& operator>>(unsigned char c);
+	virtual asciiIO_t& operator>>(unsigned char& c);
 	virtual asciiIO_t& operator<<(unsigned char c);
-	virtual asciiIO_t& operator>>(short s);
+	virtual asciiIO_t& operator>>(short& s);
 	virtual asciiIO_t& operator<<(short s);
-	virtual asciiIO_t& operator>>(unsigned short s);
+	virtual asciiIO_t& operator>>(unsigned short& s);
 	virtual asciiIO_t& operator<<(unsigned short s);
-	virtual asciiIO_t& operator>>(int i);
+	virtual asciiIO_t& operator>>(int& i);
 	virtual asciiIO_t& operator<<(int i);
-	virtual asciiIO_t& operator>>(unsigned int i);
+	virtual asciiIO_t& operator>>(unsigned int& i);
 	virtual asciiIO_t& operator<<(unsigned int i);
-	virtual asciiIO_t& operator>>(long i);
+	virtual asciiIO_t& operator>>(long& i);
 	virtual asciiIO_t& operator<<(long i);
-	virtual asciiIO_t& operator>>(unsigned long i);
+	virtual asciiIO_t& operator>>(unsigned long& i);
 	virtual asciiIO_t& operator<<(unsigned long i);
-	virtual asciiIO_t& operator>>(float f);
+	virtual asciiIO_t& operator>>(float& f);
 	virtual asciiIO_t& operator<<(float f);
-	virtual asciiIO_t& operator>>(double d);
+	virtual asciiIO_t& operator>>(double& d);
 	virtual asciiIO_t& operator<<(double d);
 
 
@@ -61,7 +61,7 @@ private:
 
 
 
-inline asciiIO_t& asciiIO_t::operator>>(char c){
+inline asciiIO_t& asciiIO_t::operator>>(char& c){
 
 	readByParseString(&c, "%c");
 	return *this;
@@ -71,7 +71,7 @@ inline asciiIO_t& asciiIO_t::operator<<(char c)
 	writeByParseString(&c, "%c");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(unsigned char c)
+inline asciiIO_t& asciiIO_t::operator>>(unsigned char& c)
 {
 	// same as signed, read a character
 	readByParseString(&c, "%c");
@@ -84,7 +84,7 @@ inline asciiIO_t& asciiIO_t::operator<<(unsigned char c)
 	return *this;
 
 }
-inline asciiIO_t& asciiIO_t::operator>>(short s)
+inline asciiIO_t& asciiIO_t::operator>>(short& s)
 {
 	readByParseString(&s, "%hd");
 	return *this;
@@ -94,7 +94,7 @@ inline asciiIO_t& asciiIO_t::operator<<(short s)
 	writeByParseString(&s, "%hd");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(unsigned short s)
+inline asciiIO_t& asciiIO_t::operator>>(unsigned short& s)
 {
 	readByParseString(&s, "%hu");
 	return *this;
@@ -104,7 +104,7 @@ inline asciiIO_t& asciiIO_t::operator<<(unsigned short s)
 	writeByParseString(&s, "%hu");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(int i)
+inline asciiIO_t& asciiIO_t::operator>>(int& i)
 {
 	readByParseString(&i, "%d");
 	return *this;
@@ -114,7 +114,7 @@ inline asciiIO_t& asciiIO_t::operator<<(int i)
 	writeByParseString(&i, "%d");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(unsigned int i)
+inline asciiIO_t& asciiIO_t::operator>>(unsigned int& i)
 {
 	readByParseString(&i, "%u");
 	return *this;
@@ -124,7 +124,7 @@ inline asciiIO_t& asciiIO_t::operator<<(unsigned int i)
 	writeByParseString(&i, "%u");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(long i)
+inline asciiIO_t& asciiIO_t::operator>>(long& i)
 {
 	readByParseString(&i, "%l");
 	return *this;
@@ -134,7 +134,7 @@ inline asciiIO_t& asciiIO_t::operator<<(long i)
 	writeByParseString(&i, "%l");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(unsigned long i)
+inline asciiIO_t& asciiIO_t::operator>>(unsigned long& i)
 {
 	readByParseString(&i, "%lu");
 	return *this;
@@ -144,7 +144,7 @@ inline asciiIO_t& asciiIO_t::operator<<(unsigned long i)
 	writeByParseString(&i, "%lu");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(float f)
+inline asciiIO_t& asciiIO_t::operator>>(float& f)
 {
 	readByParseString(&f, "%f");
 	return *this;
@@ -154,7 +154,7 @@ inline asciiIO_t& asciiIO_t::operator<<(float f)
 	writeByParseString(&f, "%f");
 	return *this;
 }
-inline asciiIO_t& asciiIO_t::operator>>(double d)
+inline asciiIO_t& asciiIO_t::operator>>(double& d)
 {
 	readByParseString(&d, "%lf");
 	return *this;

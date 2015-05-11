@@ -19,6 +19,9 @@ public:
 	enum access_mode { read_m, write_m, append_m, read_update_m, write_update_m, append_update_m };
 
 
+	// default(empty) constructor is private, see below
+
+
 	// construct an abstract stream with given filePath and accessMode
 	// this method only initailizes the stream state and
 
@@ -44,25 +47,25 @@ public:
 	// pure virtual read/write operators
 	// pure virtual - because each deriving class may implement these operations differently
 	// for example, the implementations for ASCII, Binary, Unicode should be different
-	virtual virtIO_t& operator>>(char c) = 0;
+	virtual virtIO_t& operator>>(char& c) = 0;
 	virtual virtIO_t& operator<<(char c) = 0;
-	virtual virtIO_t& operator>>(unsigned char c) = 0;
+	virtual virtIO_t& operator>>(unsigned char& c) = 0;
 	virtual virtIO_t& operator<<(unsigned char c) = 0;
-	virtual virtIO_t& operator>>(short s) = 0;
+	virtual virtIO_t& operator>>(short& s) = 0;
 	virtual virtIO_t& operator<<(short s) = 0;
-	virtual virtIO_t& operator>>(unsigned short s) = 0;
+	virtual virtIO_t& operator>>(unsigned short& s) = 0;
 	virtual virtIO_t& operator<<(unsigned short s) = 0;
-	virtual virtIO_t& operator>>(int i) = 0;
+	virtual virtIO_t& operator>>(int& i) = 0;
 	virtual virtIO_t& operator<<(int i) = 0;
-	virtual virtIO_t& operator>>(unsigned int i) = 0;
+	virtual virtIO_t& operator>>(unsigned int& i) = 0;
 	virtual virtIO_t& operator<<(unsigned int i) = 0;
-	virtual virtIO_t& operator>>(long i) = 0;
+	virtual virtIO_t& operator>>(long& i) = 0;
 	virtual virtIO_t& operator<<(long i) = 0;
-	virtual virtIO_t& operator>>(unsigned long i) = 0;
+	virtual virtIO_t& operator>>(unsigned long& i) = 0;
 	virtual virtIO_t& operator<<(unsigned long i) = 0;
-	virtual virtIO_t& operator>>(float f) = 0;
+	virtual virtIO_t& operator>>(float& f) = 0;
 	virtual virtIO_t& operator<<(float f) = 0;
-	virtual virtIO_t& operator>>(double d) = 0;
+	virtual virtIO_t& operator>>(double& d) = 0;
 	virtual virtIO_t& operator<<(double d) = 0;
 
 

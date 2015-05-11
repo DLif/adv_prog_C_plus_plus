@@ -7,7 +7,7 @@
 virtIO_t::~virtIO_t()
 {
 	// simply close the file
-	if (this->io_status_flag != not_open_e){
+	if (this->io_status_flag != not_open_e && this->io_status_flag != cant_open_file_e){
 		fclose(filePtr);
 	}
 }
@@ -169,6 +169,7 @@ void virtIO_t::read(const void *buff, size_t size, size_t count)
 
 	// see if we can perform this action
 	this->checkReadAccessiblity();
+
 
 	// try to get current position
 	long  current_pos = findCurrentPosition();

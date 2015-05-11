@@ -21,25 +21,25 @@ public:
 	// also note that in case of an error, the stream will rewind its position to the position it were
 	// before calling the operator [ same behaviour as in standard C++ IO ]
 
-	virtual binIO_t& operator>>(char c);
+	virtual binIO_t& operator>>(char& c);
 	virtual binIO_t& operator<<(char c);
-	virtual binIO_t& operator>>(unsigned char c);
+	virtual binIO_t& operator>>(unsigned char& c);
 	virtual binIO_t& operator<<(unsigned char c);
-	virtual binIO_t& operator>>(short s);
+	virtual binIO_t& operator>>(short& s);
 	virtual binIO_t& operator<<(short s);
-	virtual binIO_t& operator>>(unsigned short s);
+	virtual binIO_t& operator>>(unsigned short& s);
 	virtual binIO_t& operator<<(unsigned short s);
-	virtual binIO_t& operator>>(int i);
+	virtual binIO_t& operator>>(int& i);
 	virtual binIO_t& operator<<(int i);
-	virtual binIO_t& operator>>(unsigned int i);
+	virtual binIO_t& operator>>(unsigned int& i);
 	virtual binIO_t& operator<<(unsigned int i);
-	virtual binIO_t& operator>>(long i);
+	virtual binIO_t& operator>>(long& i);
 	virtual binIO_t& operator<<(long i);
-	virtual binIO_t& operator>>(unsigned long i);
+	virtual binIO_t& operator>>(unsigned long& i);
 	virtual binIO_t& operator<<(unsigned long i);
-	virtual binIO_t& operator>>(float f);
+	virtual binIO_t& operator>>(float& f);
 	virtual binIO_t& operator<<(float f);
-	virtual binIO_t& operator>>(double d);
+	virtual binIO_t& operator>>(double& d);
 	virtual binIO_t& operator<<(double d);
 
 protected: 
@@ -64,7 +64,7 @@ inline string binIO_t::translateAccessMode() const
 
 
 
-inline binIO_t& binIO_t::operator>>(char c){
+inline binIO_t& binIO_t::operator>>(char& c){
 
 	// read one char, the read method already takes care of errors and flags
 	read(&c, sizeof(char), 1);
@@ -77,7 +77,7 @@ inline binIO_t& binIO_t::operator<<(char c){
 	return (*this) << (unsigned char)c;
 
 }
-inline binIO_t& binIO_t::operator >>(unsigned char c)
+inline binIO_t& binIO_t::operator>>(unsigned char& c)
 {
 	// read one char, the read method already takes care of errors and flags
 	read(&c, sizeof(char), 1);
@@ -88,7 +88,7 @@ inline binIO_t& binIO_t::operator<<(unsigned char c)
 	write(&c, sizeof(char), 1);
 	return *this;
 }
-inline binIO_t& binIO_t::operator >> (short s)
+inline binIO_t& binIO_t::operator >> (short& s)
 {
 	read(&s, sizeof(short), 1);
 	return *this;
@@ -98,13 +98,15 @@ inline binIO_t& binIO_t::operator << (short s)
 	write(&s, sizeof(short), 1);
 	return *this;
 }
-inline binIO_t& binIO_t::operator >> (unsigned short s){
-	return (*this) >> (short)s;
+inline binIO_t& binIO_t::operator >> (unsigned short& s){
+	read(&s, sizeof(short), 1);
+	return *this;
 }
 inline binIO_t& binIO_t::operator << (unsigned short s){
-	return (*this) << (short)s;
+	write(&s, sizeof(short), 1);
+	return *this;
 }
-inline binIO_t& binIO_t::operator >> (int i){
+inline binIO_t& binIO_t::operator >> (int& i){
 
 	read(&i, sizeof(int), 1);
 	return *this;
@@ -113,15 +115,17 @@ inline binIO_t& binIO_t::operator << (int i){
 	write(&i, sizeof(int), 1);
 	return *this;
 }
-inline binIO_t& binIO_t::operator >> (unsigned int i){
-	return (*this) >> (int)i;
+inline binIO_t& binIO_t::operator >> (unsigned int& i){
+	read(&i, sizeof(int), 1);
+	return *this;
 }
 
 inline binIO_t& binIO_t::operator << (unsigned int i){
-	return (*this) << (int)i;
+	write(&i, sizeof(int), 1);
+	return *this;
 
 }
-inline binIO_t& binIO_t::operator >> (long l){
+inline binIO_t& binIO_t::operator >> (long& l){
 	read(&l, sizeof(long), 1);
 	return *this;
 
@@ -130,14 +134,16 @@ inline binIO_t& binIO_t::operator << (long l){
 	write(&l, sizeof(long), 1);
 	return *this;
 }
-inline binIO_t& binIO_t::operator >> (unsigned long l){
-	return (*this) >> (long)l;
+inline binIO_t& binIO_t::operator >> (unsigned long& l){
+	read(&l, sizeof(long), 1);
+	return *this;
 
 }
 inline binIO_t& binIO_t::operator << (unsigned long l){
-	return (*this) << (long)l;
+	write(&l, sizeof(long), 1);
+	return *this;
 }
-inline binIO_t& binIO_t::operator >> (float f){
+inline binIO_t& binIO_t::operator >> (float& f){
 	read(&f, sizeof(float), 1);
 	return *this;
 }
@@ -145,7 +151,7 @@ inline binIO_t& binIO_t::operator << (float f){
 	write(&f, sizeof(float), 1);
 	return *this;
 }
-inline binIO_t& binIO_t::operator >> (double d){
+inline binIO_t& binIO_t::operator >> (double& d){
 	read(&d, sizeof(double), 1);
 	return *this;
 }
