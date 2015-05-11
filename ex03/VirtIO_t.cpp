@@ -15,7 +15,7 @@ virtIO_t::~virtIO_t()
 // private constuctor
 // construct an abstract file stream
 // basic initialization
-// note that access mode and filePath should be initailized by an other constructer designed to do so
+// note that access mode and filePath should be initailized by an other constructer designed to do so.
 // to be used only by base class and cannot be directly used from deriving classes or outside users
 // (this way, the fileName and accessMode will always be set by the other base constructor)
 
@@ -127,7 +127,7 @@ size_t virtIO_t::getFileLen() const
 	if (stat(this->filePath.c_str(), &fileStats))
 	{
 		// some error occured
-		throw runtime_error("Failed to compute file length");
+		throw runtime_error("Error: failed to compute file length");
 	}
 	
 	return fileStats.st_size;
@@ -226,6 +226,7 @@ void virtIO_t::operator,(size_t len)
 	{
 		// reset the IO buffer, must be set before each usage, even in case of an error
 		this->currentBufferUsage = virtIO_t::buffer_not_set;
+
 		// re-throw exception
 		throw;
 	}

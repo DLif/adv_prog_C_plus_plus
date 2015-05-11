@@ -62,6 +62,11 @@ private:
 	// templating is needed here, because we're passing the value itself and we need to declare its type (can't deref void pointer)
 	template <typename T> void writeByParseString(const T& container, const string& parse_string) ;
 
+
+	// non copyable
+	asciiIO_t(const asciiIO_t&);
+	asciiIO_t& operator=(const asciiIO_t&);
+
 };
 
 template <typename T> void asciiIO_t::writeByParseString(const T& container, const string& parse_string) 

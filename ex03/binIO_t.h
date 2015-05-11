@@ -7,13 +7,15 @@ class binIO_t : public virtIO_t{
 
 public:
 
-	// do not hide operators >> << for the void buffers
+
+	// do not hide operators >> << for the void* buffers
 	using virtIO_t::operator<<;
 	using virtIO_t::operator>>;
 	  
 	// constructs a binary file stream with given file path and accessMode
 	// simply calls the base constructor
 	binIO_t(const string& path, const virtIO_t::access_mode& accessMode);
+
 	
 	// if the file is currently open, closes it (implemented in base constructor)
 	virtual ~binIO_t(); 
@@ -52,6 +54,13 @@ protected:
 	// this overrides the base class implementation to add binary flag to each mode
 	virtual string translateAccessMode() const;
 
+
+private:
+
+	// non copyable
+	binIO_t(const binIO_t&);
+	binIO_t& operator=(const binIO_t&);
+
 };
 
 
@@ -77,7 +86,8 @@ inline binIO_t& binIO_t::operator>>(char& c){
 inline binIO_t& binIO_t::operator<<(char c){
 
 	// same binary representation as unsigned char
-	return (*this) << (unsigned char)c;
+	write(&c, sizeof(char), 1);
+	return *this;
 
 }
 inline binIO_t& binIO_t::operator>>(unsigned char& c)

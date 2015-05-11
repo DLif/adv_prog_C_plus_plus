@@ -12,7 +12,7 @@ public:
 	// io stream status flags
 	enum io_status{ not_open_e, ok_e, cant_open_file_e, bad_access_e, writeErr_e, readErr_e };
 
-	// access mode flags, same (in their semantic meaning) as those defined for fopen
+	// access mode flags, same as those defined for fopen
 	// note that the user may only choose the access mode in an abstract meaning, independat from formats (e.g. binary or text)
 	// the format shall be determined by the deriving classes
 	// for example, binIO_t always opens a file in binary mode, while asciiIO_t always opens a file in text mode
@@ -22,14 +22,14 @@ public:
 	// default(empty) constructor is private, see below
 
 
-	// construct an abstract stream with given filePath and accessMode
-	// this method only initailizes the stream state and
 
+	// construct an abstract stream with given filePath and accessMode
+	// this method only initailizes the stream state
 	// IMPORTANT: the CTOR does not open the file, instead, to open the file, call virtIO_t::open() member function
 	// (this enables us to throw exceptions properly from outside the CTOR, and translate access mode polymorphically)
 
 	// NOTE: after construction the file is not open, and any attempt to read/write to the stream
-	// will thrown an exception
+	// will throw an exception
 	virtIO_t(const string& filePath, const virtIO_t::access_mode& accessMode);
 
 	// method opens file at current filePath, with accessMode
@@ -181,7 +181,7 @@ private:
 
 	// construct an abstract file stream
 	// basic initialization
-	// note that access mode and file path should be initailized by an other constructer designed to do so
+	// note that access mode and file path should be initailized by an other constructer designed to do so.
 	// to be used only by base class and cannot be directly used from deriving classes or outside users
 	// (this way, the fileName and accessMode will always be set by the other constructor)
 	virtIO_t();
@@ -196,8 +196,8 @@ private:
 	IOBufferUsage currentBufferUsage;  // which buffer is currently used, inputBuffer, or outputBuffer, or neither of them
 
 	// stream is non copyable  
-	virtIO_t(const virtIO_t &other);               
-	virtIO_t& operator=(const virtIO_t &other);
+	virtIO_t(const virtIO_t &);               
+	virtIO_t& operator=(const virtIO_t &);
 
 };
 
@@ -331,7 +331,7 @@ inline void virtIO_t::clear()
 	}
 	else
 	{
-		throw logic_error("Error: file must be openned with open() member function first");
+		throw logic_error("Error: file must be opened with open() member function first");
 	}
 }
 
