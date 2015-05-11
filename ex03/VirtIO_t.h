@@ -1,5 +1,6 @@
 #ifndef _VIRTIO_H
 #define _VIRTIO_H
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <string>
 using namespace std;
