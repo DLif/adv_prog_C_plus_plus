@@ -203,8 +203,8 @@ static void processCommands()
 			try{
 			*steramToRead >> tempBuff,numToRead; //read fro device
 			}
-			catch(...){
-				cerr << "Falid in reading"<< endl;
+			catch(exception& e){
+				cerr << "Falid in reading: "<< e.what()<< endl;
 				break;
 			}
 
@@ -234,8 +234,8 @@ static void processCommands()
 			try{
 			*steramToRead << tempBuff,numToRead; //write to device
 			}
-			catch(...){
-				cerr << "Falid in writing: "<< endl;
+			catch(exception& e){
+				cerr << "Falid in writing: "<< e.what()<< endl;
 				break;
 			}
 
@@ -265,7 +265,7 @@ static void processCommands()
 				cout << "\nThe file isn't initialized is: " <<  endl;
 				break;
 			}
-			cout << "\nThe file status is: " << steramToRead->getStatus() << endl;
+			cout << "\nThe file status is: " << translateStatus(steramToRead->getStatus()) << endl;
 			break; }
 		case 'q': {
 			cont = false;
@@ -285,8 +285,8 @@ static void processCommands()
 			try{
 			*steramToRead >> i; //danger
 			}
-			catch(string e){
-				cerr << "Falid in reading: "<< e << endl;
+			catch(exception& e){
+				cerr << "Falid in reading int: "<< e.what()<< endl;
 				break;
 			}
 
@@ -309,8 +309,8 @@ static void processCommands()
 			try{
 			*steramToRead << i; //danger
 			}
-			catch(string e){
-				cerr << "Falid in writing: "<< e << endl;
+			catch(exception& e){
+				cerr << "Falid in writing int: "<< e.what()<< endl;
 				break;
 			}
 
@@ -324,6 +324,7 @@ static void processCommands()
 			}
 			steramToRead->clear();
 			cout << "\nfile cleared" << endl;
+			break;
 				  }
 		default:
 			cout << "\nInvalid input" << endl;
