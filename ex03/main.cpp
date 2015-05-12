@@ -7,7 +7,7 @@ using namespace std;
 
 static string translateStatus(const virtIO_t::io_status& ioStatus);
 static string translateAccessMode(const virtIO_t::access_mode& accessMode);
-static virtIO_t* chooseFile(const string& printPorpose,bool& isValidInput);
+static virtIO_t* chooseFile(const string& printPorpose, bool& isValidInput);
 static int getAnInteger(const string& toPrintAddition);
 static void processCommands();
 
@@ -41,7 +41,7 @@ static string translateStatus(const virtIO_t::io_status& ioStatus){
 		return "err";
 	}
 
-	
+
 }
 
 // access mode to its C variant
@@ -81,7 +81,7 @@ static string translateAccessMode(const virtIO_t::access_mode& accessMode){
 	}
 }
 
-static virtIO_t* chooseFile(const string& printPorpose,bool& isValidInput){
+static virtIO_t* chooseFile(const string& printPorpose, bool& isValidInput){
 	char c;
 	isValidInput = true;
 	cout << printPorpose << ": binary (B) or ascii(A)" << endl;
@@ -182,7 +182,7 @@ static void processCommands()
 			try{
 				asciiFile->open();
 			}
-			catch(exception& e){
+			catch (exception& e){
 				cout << "\nFailed to open file: " << e.what() << endl;
 			}
 			break; }
@@ -198,7 +198,7 @@ static void processCommands()
 			try{
 				binFile->open();
 			}
-			catch(exception& e){
+			catch (exception& e){
 				cout << "\nFailed to open file: " << e.what() << endl;
 			}
 			break; }
@@ -208,14 +208,14 @@ static void processCommands()
 			char *tempBuff = NULL;
 			bool isUserInputValid;
 
-			virtIO_t *steramToRead = chooseFile("\nChoose file to read",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to read", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
 			}
 			if (!steramToRead->is_ok()){
-				cout << "\nFile status isn't ok_e. please check the problem and use clesr before reading" << endl;
+				cout << "\nFile status isn't ok_e. please check the problem and use clear() before reading" << endl;
 				break;
 			}
 			numToRead = getAnInteger("of bytes to read");
@@ -240,14 +240,14 @@ static void processCommands()
 			int numToRead = 0;
 			char tempBuff[1025] = { 0 };
 
-			virtIO_t *steramToRead = chooseFile("\nChoose file to write",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to write", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
 			}
 			if (!steramToRead->is_ok()){
-				cout << "\nFile status isn't ok_e. please check the problem and use clesr before writing" << endl;
+				cout << "\nFile status isn't ok_e. please check the problem and use clear() before writing" << endl;
 				break;
 			}
 			numToRead = getAnInteger("of bytes to write(max 1024)");
@@ -277,8 +277,8 @@ static void processCommands()
 			break; }
 		case 'p': {
 			bool isUserInputValid;
-			virtIO_t *steramToRead = chooseFile("\nChoose file to get path",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to get path", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized is: " << endl;
 				break;
@@ -288,8 +288,8 @@ static void processCommands()
 
 		case 'm': {
 			bool isUserInputValid;
-			virtIO_t *steramToRead = chooseFile("\nChoose file to get mode",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to get mode", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized is: " << endl;
 				break;
@@ -298,8 +298,8 @@ static void processCommands()
 			break; }
 		case 's': {
 			bool isUserInputValid;
-			virtIO_t *steramToRead = chooseFile("\nChoose file to get status",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to get status", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized is: " << endl;
 				break;
@@ -312,14 +312,14 @@ static void processCommands()
 		case 'r': {
 			bool isUserInputValid;
 			int i = -1;
-			virtIO_t *steramToRead = chooseFile("\nChoose file to read an integer from",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to read an integer from", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
 			}
 			if (!steramToRead->is_ok()){
-				cout << "\nFile status isn't ok_e. please check the problem and use clesr before reading" << endl;
+				cout << "\nFile status isn't ok_e. please check the problem and use clear() before reading" << endl;
 				break;
 			}
 
@@ -336,14 +336,14 @@ static void processCommands()
 		case 'w': {
 			bool isUserInputValid;
 			int i = -1;
-			virtIO_t *steramToRead = chooseFile("\nChoose file to write an integer to",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to write an integer to", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
 			}
 			if (!steramToRead->is_ok()){
-				cout << "\nFile status isn't ok_e. please check the problem and use clesr before reading" << endl;
+				cout << "\nFile status isn't ok_e. please check the problem and use clear() before reading" << endl;
 				break;
 			}
 
@@ -369,20 +369,20 @@ static void processCommands()
 
 		case 'c': {
 			bool isUserInputValid;
-			virtIO_t *steramToRead = chooseFile("\nChoose file to clear",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file to clear", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
 			}
 			steramToRead->clear();
-			cout << "\nfile cleared" << endl;
+			cout << "\nstream error flags cleared" << endl;
 			break;
 		}
 		case 'f':{
 			bool isUserInputValid;
-			virtIO_t *steramToRead = chooseFile("\nChoose file flush",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			virtIO_t *steramToRead = chooseFile("\nChoose file flush", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
@@ -394,46 +394,53 @@ static void processCommands()
 			else {
 				cout << "\nFlush failed" << endl;
 			}
-			break;}
+			break; }
 		case 'k':{
 			bool isUserInputValid;
-			int numToRead=-1;
-			virtIO_t *steramToRead = chooseFile("\nChoose file set lseek point in it",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			int numToRead = -1;
+			virtIO_t *steramToRead = chooseFile("\nChoose file", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
 			}
-			numToRead = getAnInteger("of the index in the file you whant to jump to");
+			numToRead = getAnInteger("of the index in the file you want to jump to");
 
 			try{
-				steramToRead->setFilePosition(numToRead);
+				if (!steramToRead->setFilePosition(numToRead))
+				{
+					cout << "setFilePosition failed" << endl;
+				}
+				else
+				{
+					cout << "File postion set" << endl;
+				}
 			}
-			catch(exception& e){
+			catch (exception& e){
 				cout << "setFilePosition failed: " << e.what() << endl;
 				break;
 			}
-			cout << "File postion set" << endl;
-			break;}
+			
+			break; }
 		case 'S':{
 			bool isUserInputValid;
-			size_t len=-1;
-			virtIO_t *steramToRead = chooseFile("\nChoose file set lseek point in it",isUserInputValid);
-			if (!isUserInputValid) {break;}
+			size_t len = -1;
+			virtIO_t *steramToRead = chooseFile("\nChoose file", isUserInputValid);
+			if (!isUserInputValid) { break; }
 			if (steramToRead == NULL){
 				cout << "\nThe file isn't initialized" << endl;
 				break;
 			}
 
 			try{
-				len=steramToRead->getFileLen();
+				len = steramToRead->getFileLen();
 			}
-			catch(exception& e){
+			catch (exception& e){
 				cout << "getFileLen failed: " << e.what() << endl;
 				break;
 			}
 			cout << "File len: " << len << endl;
-			break;}
+			break; }
 		default:
 			cout << "\nInvalid input" << endl;
 			break;
