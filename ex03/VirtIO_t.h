@@ -7,6 +7,26 @@ using namespace std;
 
 class virtIO_t {
 
+/*
+	
+GENERAL NOTES:
+
+- Constructors do not perform file opening, use an open(..) method(s) after construction.
+
+- Stream supports closing and openning new files, without constructing a new stream object.
+
+- The streams are opened with the same formats as defined in stdio (for example 'r+' is represented by read_update_m)
+  and the IO semantics are exactly the same. flush, seek, clear methods are also provided.
+  [Note however that there is no 'b' or 't' flag equivalents, because access_mode enum does not represent a format, such as text or binary
+   the format is enforced by the deriving classes, for example binIO_t will always open files with 'b' flag]
+
+- Finally, just like in C++ streams, in case of a read/write error, the file position pointer will remain in the same position
+  as it were before the read/write was performed.
+	
+*/
+
+
+
 public:
 
 	// io stream status flags
@@ -19,9 +39,11 @@ public:
 	enum access_mode { read_m, write_m, append_m, read_update_m, write_update_m, append_update_m };
 
 
-	// default(empty) constructor is private, see below
+	// construct an abstract file stream
+	// basic initialization, does not set a fileName and access mode
+	// to actually open a file, call virtIO_t::open(fileName, accessMode) member function
 
-
+	virtIO_t();
 
 	// construct an abstract stream with given filePath and accessMode
 	// this method only initailizes the stream state
@@ -36,13 +58,39 @@ public:
 	// in case of an error (cannot open file for some reason), io_status_flag will be set to cant_open_file_e
 	// and an exception will be thrown
 	// otherwise, if everything is ok, status flag will be set to ok_e
+	// NOTE: 1. if filePath and accessMode were not previously set (e.g. used empty constructor) then an exception will be thrown
+	//       2. If a file is currently open, an exception will be thrown without changing the state of the stream
 	void open();
+
+	// same as open above, but opens the file at given filePath with given accessMode
+	// use this method to open a file after calling the empty constructor, or to open a different file after closing the previous
+	void open(const string& filePath, const virtIO_t::access_mode& accessMode);
+
+	// close currently open file.
+	// Does not reset filePath and accessMode, may open again same file with virtIO_t::open() mem function
+	// if no file is currently open, throws an exception
+	void close(); 
 
 	// if a file is currently open, closes the file
 	virtual ~virtIO_t();
 
 	inline virtIO_t& operator>>(void* output_buff);       // sets output buffer (to output to)
 	inline virtIO_t& operator<<(const void* input_buff);  // sets input buffer (to read from)
+
+	// write or read to input/output buffers previously set by the user (<< or >> buffer operators)
+	// although a common implementation exists for binary and ascii for writing/reading bytes/chars
+	// each deriving class could potentially choose a different approach (thats why its virtual)
+
+	// NOTES:
+	// - one of the operators >> or << for IO buffers should be called before using this operator
+	//   if not, an exception will be thrown
+	// - this will only read or write (but not both) according to the last << or >> operator call
+	// - exceptions and error flags will be handled in the same manner as in write/read methods (see below)
+	// - the call resets the IO buffer in the end of it
+	//   (meaning that the user must call << or >> buffer operator before using this operator again)
+	//   regardless to whether or not an error has occured
+
+	virtual void operator,(size_t num_bytes);
 
 	// pure virtual read/write operators
 	// pure virtual - because each deriving class may implement these operations differently
@@ -69,20 +117,7 @@ public:
 	virtual virtIO_t& operator<<(double d) = 0;
 
 
-	// write or read to input/output buffers previously set by the user (<< or >> buffer operators)
-	// although a common implementation exists for binary and ascii for writing/reading bytes/chars
-	// each deriving class could potentially choose a different approach (thats why its virtual)
-
-	// NOTES:
-	// - one of the operators >> or << for IO buffers should be called before using this operator
-	//   if not, an exception will be thrown
-	// - this will only read or write (but not both) according to the last << or >> operator call
-	// - exceptions and error flags will be handled in the same manner as in write/read methods (see below)
-	// - the call resets the IO buffer in the end of it
-	//   (meaning that the user must call << or >> buffer operator before using this operator again)
-	//   regardless to whether or not an error has occured
-
-	virtual void operator,(size_t num_bytes);        
+	     
 	
 	// getters for file length, file path and file access mode
 	// 
@@ -91,8 +126,10 @@ public:
 												   // [throws exception if file is not open]
 
 	inline string getFilePath() const;             // returns the file path
+												   // [throws expcetion if was not previously set]
 	                                              
 	inline access_mode getFileAccessMode() const;  // returns the access mode
+												   // [throws expcetion if was not previously set]
 
 	// various IO status queries
 	inline bool is_ok() const;
@@ -101,6 +138,9 @@ public:
 	inline bool is_writeErr() const;
 	inline bool is_readErr() const;
 	inline virtIO_t::io_status getStatus() const;
+
+	// returns true iff a file is currently open
+	inline bool isOpen() const;
 
 	// returns true iff !is_ok(), meaning some error has occured
 	// similar to ! operator implemented in std::ios class
@@ -179,21 +219,18 @@ private:
 	// which IO buffer is currently used (input/output/none)
 	enum IOBufferUsage { buffer_not_set, input_buffer, output_buffer };
 
-	// construct an abstract file stream
-	// basic initialization
-	// note that access mode and file path should be initailized by an other constructer designed to do so.
-	// to be used only by base class and cannot be directly used from deriving classes or outside users
-	// (this way, the fileName and accessMode will always be set by the other constructor)
-	virtIO_t();
+	
 
 	io_status io_status_flag;		   // io status as defined in the corresponding enum above
 	string filePath;                   // path to the file
 	access_mode accessMode;			   // access mode as defined in the corresponding enum above
+	bool isFileSet;                    // holds whether or not filePath and accessMode were set
 
 	FILE* filePtr;                     // actual file pointer
 	const void* inputBuffer;           // input buffer (we will read from this buffer when , operator is used)
 	void*       outputBuffer;          // output buffer (we will write to this buffer when , operator is used)
 	IOBufferUsage currentBufferUsage;  // which buffer is currently used, inputBuffer, or outputBuffer, or neither of them
+	
 
 	// stream is non copyable  
 	virtIO_t(const virtIO_t &);               
@@ -231,9 +268,9 @@ inline virtIO_t& virtIO_t::operator<<(const void* buffer)
 
 inline long virtIO_t::findCurrentPosition() const
 {
-	if (io_status_flag == not_open_e)
+	if (!isOpen())
 	{
-		throw logic_error("Error: file is not open! Use virtIO_t::open() first");
+		throw logic_error("Error: no file is currently open");
 	}
 	return ftell(this->filePtr);
 }
@@ -242,9 +279,9 @@ inline long virtIO_t::findCurrentPosition() const
 // returns true on success, false otherwise
 inline bool  virtIO_t::setFilePosition(long int position) const
 {
-	if (io_status_flag == not_open_e)
+	if (!isOpen())
 	{
-		throw logic_error("Error: file is not open! Use virtIO_t::open() first");
+		throw logic_error("Error: no file is currently open");
 	}
 	return fseek(this->filePtr, position, SEEK_SET) == 0;
 }
@@ -254,9 +291,9 @@ inline bool  virtIO_t::setFilePosition(long int position) const
 // if file is not open, exception is thrown 
 inline bool virtIO_t::flush() const
 {
-	if (io_status_flag == not_open_e)
+	if (!isOpen())
 	{
-		throw logic_error("Error: file is not open! Use virtIO_t::open() first");
+		throw logic_error("Error: no file is currently open");
 	}
 	return fflush(filePtr) == 0;
 }
@@ -264,7 +301,9 @@ inline bool virtIO_t::flush() const
 
 inline FILE* virtIO_t::getFilePtr() const{
 	
-	return this->filePtr;
+	if (isOpen())
+		return this->filePtr;
+	return 0;
 }
 
 inline bool virtIO_t::is_ok() const
@@ -293,6 +332,7 @@ inline bool virtIO_t::is_readErr() const
 	return this->io_status_flag == readErr_e;
 }
 
+
 // protected method, to be used by deriving classes
 inline void virtIO_t::set_io_status(virtIO_t::io_status newStatus)
 {
@@ -315,23 +355,31 @@ inline bool virtIO_t::operator!() const
 
 inline string virtIO_t::getFilePath() const
 {
+	if (!isFileSet)
+	{
+		throw logic_error("Error: file path is not set");
+	}
 	return this->filePath;
 }
 
 inline virtIO_t::access_mode virtIO_t::getFileAccessMode() const
 {
+	if (!isFileSet)
+	{
+		throw logic_error("Error: acess mode is not set");
+	}
 	return this->accessMode;
 }
 
 // clear error status
 inline void virtIO_t::clear()
 {
-	if (this->io_status_flag != not_open_e){
+	if (isOpen()){
 		this->io_status_flag = ok_e;
 	}
 	else
 	{
-		throw logic_error("Error: file must be opened with open() member function first");
+		throw logic_error("Error: no file is currently open");
 	}
 }
 
@@ -339,7 +387,7 @@ inline void virtIO_t::clear()
 inline void virtIO_t::checkWriteAccessiblity()
 {
 	
-	if (this->io_status_flag == not_open_e)
+	if (!isOpen())
 	{
 		throw logic_error("Error: must open the file before writing to it");
 	}
@@ -360,7 +408,7 @@ inline void virtIO_t::checkWriteAccessiblity()
 inline void virtIO_t::checkReadAccessiblity()
 {
 
-	if (this->io_status_flag == not_open_e)
+	if (!isOpen())
 	{
 		throw logic_error("Error: must open the file before reading from it");
 	}
@@ -377,5 +425,22 @@ inline void virtIO_t::checkReadAccessiblity()
 	}
 
 }
+
+// returns true iff a file is currently open
+inline bool virtIO_t::isOpen() const
+{
+	if (this->io_status_flag == not_open_e)
+	{
+		// no file is open and there was no attempt to open a file
+		return false;
+	}
+	if (this->io_status_flag == cant_open_file_e)
+	{
+		// unsuccessful attempt to open a file
+		return false;
+	}
+	return true;
+}
+
 
 #endif

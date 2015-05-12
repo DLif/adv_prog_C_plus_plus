@@ -12,6 +12,10 @@ public:
 	using virtIO_t::operator>>;
 
 	// constructs an ascii file stream
+	// same logic as base class
+	asciiIO_t();
+
+	// constructs an ascii file stream
 	// same logic as base class 
 	asciiIO_t(const string& path, const virtIO_t::access_mode& accessMode);
 

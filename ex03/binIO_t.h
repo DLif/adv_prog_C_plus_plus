@@ -12,6 +12,10 @@ public:
 	using virtIO_t::operator<<;
 	using virtIO_t::operator>>;
 	  
+	// constructs a binary file stream
+	// same logic as base class
+	binIO_t();
+
 	// constructs a binary file stream with given file path and accessMode
 	// simply calls the base constructor
 	binIO_t(const string& path, const virtIO_t::access_mode& accessMode);

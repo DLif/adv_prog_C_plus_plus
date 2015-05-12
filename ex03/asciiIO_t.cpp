@@ -1,5 +1,9 @@
 #include "asciiIO_t.h"
 
+asciiIO_t::asciiIO_t()
+{
+	// let the base class do all the work
+}
 
 // intialize an ascii file stream
 // again, let the base class do all the work

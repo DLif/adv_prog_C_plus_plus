@@ -7,24 +7,22 @@
 virtIO_t::~virtIO_t()
 {
 	// simply close the file
-	if (this->io_status_flag != not_open_e && this->io_status_flag != cant_open_file_e){
+	if (isOpen()){
 		fclose(filePtr);
 	}
 }
 
-// private constuctor
 // construct an abstract file stream
-// basic initialization
-// note that access mode and filePath should be initailized by an other constructer designed to do so.
-// to be used only by base class and cannot be directly used from deriving classes or outside users
-// (this way, the fileName and accessMode will always be set by the other base constructor)
+// basic initialization, does not set a fileName
+// to actually open a file, call virtIO_t::open(fileName, accessMode) member function
 
 virtIO_t::virtIO_t() : 
 	currentBufferUsage(buffer_not_set),    /* current IO buffer not set by user */
 	inputBuffer(NULL),                     /* no input buffer set */
 	outputBuffer(NULL),                    /* no output buffer set */
 	filePtr(NULL),                         /* no file is opened */
-	io_status_flag(not_open_e)             /* status is not open */
+	io_status_flag(not_open_e),            /* status is not open */
+	isFileSet(false)                       /* file path and access mode were not set*/
 {
 	
 }
@@ -40,6 +38,8 @@ virtIO_t::virtIO_t(const string& filePath, const virtIO_t::access_mode& accessMo
 	// provide access mode and file path
 	this->accessMode = accessMode;
 	this->filePath = filePath;
+	// file name and access mode provided, may use open()
+	this->isFileSet = true;
 }
 
 
@@ -48,10 +48,15 @@ virtIO_t::virtIO_t(const string& filePath, const virtIO_t::access_mode& accessMo
 // in case of an error (cannot open file for some reason), io_status_flag will be set to cant_open_file_e
 // and an exception will be thrown
 // otherwise, if everything is ok, status flag will be set to ok_e
+// note that this method may only be called if file name and access mode were previously set, otherwise an exception will be thrown
 
 void virtIO_t::open()
 {
-
+	if (!isFileSet)
+	{
+		// file was not provided, cannot call open()
+		throw logic_error("Error: file name and access mode were not provided, use overloaded open(..)");
+	}
 	// fetch the open mode for the C function fread (note that this is a virtual call)
 	// binary IO for example, will want to append a 'b' to the access mode
 	string cOpenMode = translateAccessMode();
@@ -69,11 +74,38 @@ void virtIO_t::open()
 	{
 		// some error occured
 		this->io_status_flag = virtIO_t::cant_open_file_e;
-		throw runtime_error("Failed to open file: " + filePath);
+		throw runtime_error("Error: failed to open file: " + filePath);
 	}
 
 }
 
+void virtIO_t::open(const string& filePath, const virtIO_t::access_mode& accessMode)
+{
+	if (isOpen())
+	{
+		throw logic_error("Error: a file is currently open! You must close() it first");
+	}
+	// set file information
+	this->accessMode = accessMode;
+	this->filePath = filePath;
+	this->isFileSet = true;
+	// open the file
+	open();
+}
+
+void virtIO_t::close()
+{
+	if (!isOpen())
+	{
+		throw logic_error("Error: no file is open!");
+	}
+
+	fclose(filePtr);
+	// mark that stream is closed
+	set_io_status(not_open_e);
+	// disable user IO buffer if such was provided
+	currentBufferUsage = buffer_not_set;
+}
 
 // this method translates accessMode into the C equivalent string representation to be used by fopen(..) C method
 // note that this is a virtual function, and deriving classes may alter the access mode according to their needs (example: binary)
@@ -120,7 +152,7 @@ size_t virtIO_t::getFileLen() const
 {
 	if (this->io_status_flag == not_open_e)
 	{
-		throw logic_error("Error: file was not openned!");
+		throw logic_error("Error: no file is currently open");
 	}
 	// use C function to fetch file size
 	struct stat fileStats;
