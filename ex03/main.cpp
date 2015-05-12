@@ -162,7 +162,7 @@ static void processCommands()
 	while (cont)
 	{
 
-		cout << "\nnew ascci file(A) (old ascii file will be closed) | new binary file(B) (old binary file will be closed) | read form file(R) | write to file (W) | get file path(p) | get file acess mode(m) | get file status(s) | write int(w) | read int(r) | flush(f) | seek(k) | get file size(S) | quit" << endl;
+		cout << "\nnew ascci file(A) (old ascii file will be closed) | new binary file(B) (old binary file will be closed) | read form file(R) | write to file (W) | get file path(p) | get file acess mode(m) | get file status(s) | write int(w) | read int(r) | flush(f) | seek(k) | get file size(S) | clear error flags(c)| quit" << endl;
 
 		cin >> c;
 		// clear rest of the line 
