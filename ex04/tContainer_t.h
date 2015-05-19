@@ -11,11 +11,6 @@
 // declarations
 using namespace std;
 
-template <class T, class Container>
-class tContainer_t;
-
-template <class T, class Container>
-ostream& operator<<(ostream&, const tContainer_t<T, Container>&);
 
 template <class T, class Container>
 class tContainer_t

@@ -11,13 +11,6 @@
 using namespace std;
 
 
-template <class T, template <typename, typename> class Container>
-class tContainer_t;
-
-template <class T, template <typename, typename> class Container>
-ostream& operator<<(ostream&, const tContainer_t<T, Container>&);
-
-
 //note that the final class keyword is a must, cannot use typename instead.
 template <class T, template <typename, typename> class Container>
 class tContainer_t
