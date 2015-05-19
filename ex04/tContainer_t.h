@@ -136,15 +136,21 @@ inline bool tContainer_t<T, Container>::removeDelete(const T& val)
 template <class T, class Container>
 inline void tContainer_t<T, Container>::removeAll()
 {
-	// recursively remove untill no more such elements exist
-	while (remove(val));
+	// simply remove all elements
+	container.clear(); 
 }
 
 template <class T, class Container>
 inline void tContainer_t<T, Container>::removeDeleteAll()
 {
-	// recursively remove + delte until no more such elements exist
-	while (removeDelete(val));
+	tContainer_t::iter_t iter = container.begin();
+	while (iter != container.end())
+	{
+		delete *iter;
+		++iter;
+	}
+
+	removeAll();
 }
 
 

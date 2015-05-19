@@ -9,7 +9,8 @@ void main()
 {
 	
 	//tContainer_t<int, vector<int*>> vec;
-	tContainer_t<int, vector> vec;
+	tContainer_t<int, vector> vec, vec2;
+
 	int a, b, c;
 
 	a = 5;

@@ -8,15 +8,14 @@
 #include <iterator>
 #include <iostream>
 
-// declarations
 using namespace std;
 
+//note that the final class keyword is a must, cannot use typename instead.
 template <class T, template <typename, typename> class Container>
 class tContainer_t
 {
 
 public:
-
 
 	tContainer_t(){};   // default implementation will suffice
 	//~tContainer_t();  // default implementation will suffice [virtual?]
@@ -136,15 +135,21 @@ inline bool tContainer_t<T, Container>::removeDelete(const T& val)
 template <class T, template <typename, typename> class Container>
 inline void tContainer_t<T, Container>::removeAll()
 {
-	// recursively remove untill no more such elements exist
-	while (remove(val));
+	// remove all elements without deleting
+	container.clear();
 }
 
 template <class T, template <typename, typename> class Container>
 inline void tContainer_t<T, Container>::removeDeleteAll()
 {
-	// recursively remove + delte until no more such elements exist
-	while (removeDelete(val));
+	tContainer_t::iter_t iter = container.begin();
+	while (iter != container.end())
+	{
+		delete *iter;
+		++iter;
+	}
+
+	removeAll();
 }
 
 
