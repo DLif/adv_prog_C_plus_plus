@@ -12,8 +12,15 @@
 using namespace std;
 
 template <class T, class Container>
+class tContainer_t;
+
+template <class T, class Container>
+ostream& operator<<(ostream&, const tContainer_t<T, Container>&);
+
+template <class T, class Container>
 class tContainer_t
 {
+	friend ostream& operator<< <T, Container>(ostream&, const tContainer_t&);
 	
 public:
 
@@ -191,6 +198,24 @@ inline T*& tContainer_t<T, Container>::operator[](size_t index)
 }
 
 
+template <class T, class Container>
+ostream& operator << (ostream& os, const tContainer_t<T, Container>& tContainer)
+{
 
+	tContainer_t<T, Container>::const_iter_t iter = tContainer.container.begin();
+	if (tContainer.isEmpty())
+	{
+		os << "tContainer is empty" << endl;
+		return os;
+	}
+	os << "tContainer size: " << tContainer.size() << endl << endl;
+	while (iter != tContainer.container.end())
+	{
+		os << "[ "<< *(*iter) << " ]";
+		++iter;
+	}
+	os << endl;
+	return os;
+}
 
 #endif

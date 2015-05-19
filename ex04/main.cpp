@@ -58,7 +58,7 @@ void main()
 
 	cout << vec.size() << endl;
 
-	
+	cout << vec;
 
 	while (1){}
 
