@@ -166,8 +166,11 @@ inline T* const& tContainer_t<T, Container>::at(size_t index) const
 
 	if (typeid(container) == typeid(vector<T>))
 	{
+		// use the subscript operator only on a vector<T*> type
+		const vector<T*>& vec = *((const vector<T*>*)&container);
+
 		// const subscript operator also returns a (const) reference
-		return container[index];
+		return vec[index];
 	}
 
 	// list<T>
