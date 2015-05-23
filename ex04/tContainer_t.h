@@ -8,11 +8,27 @@
 #include <iterator>
 #include <iostream>
 
-// declarations
 using namespace std;
 
+// 
+// NOTE: _TEMPLATE_TEMPLATE_ 
+// when defined the template-template version is active
+// otherwise, the non-template version is active.
+//
 
-template <class T, class Container>
+#define _TEMPLATE_TEMPLATE_
+
+
+#ifdef _TEMPLATE_TEMPLATE_
+#define _TEMPLATE_CLASS_DEFINITION_ template <class T, template <typename, typename> class Container>
+#define _CONTAINER_TYPE_ Container<T*, allocator<T*>>
+
+#else
+#define _TEMPLATE_CLASS_DEFINITION_ template <class T, class Container>
+#define _CONTAINER_TYPE_ Container
+#endif
+
+_TEMPLATE_CLASS_DEFINITION_
 class tContainer_t
 {
 	friend ostream& operator<< <T, Container>(ostream&, const tContainer_t&);
@@ -21,25 +37,30 @@ public:
 
 
 	tContainer_t(){};   // default implementation will suffice
-	//~tContainer_t();  // default implementation will suffice [virtual?]
+	//~tContainer_t();  // default implementation will suffice 
 
 	inline bool isEmpty() const;		    // true iff container contains no elements
+
 	inline size_t size() const;				// number of elements in container
+
 	inline void push_back(const T* val);    // push to the end of the container
 											// same semantics as the wrapped container's push_back method
+
 	inline T* front() const;				// return the first element
 											// same semnatics as the wrapped container's front method
+
 	inline T* back() const;					// same as above, but returns the last element
 
 	inline T* find(const T& val) const;	   // find element by given value
+										   // returns the first element found
 										   // if no such element exists, returns 0
 
 	inline T* remove(const T& val);		   // remove element by given value
 										   // removes only the first element found
 										   // if no such element exists, returns 0
 
-	inline bool removeDelete(const T& val);// like method above, but also deletes the element
-										   // if no such element was found, returns false, otherwise returns true
+	inline T* removeDelete(const T& val);  // like method above, but also deletes the element
+										   // if no such element was found, returns 0, otherwise returns the deleted element
 
 	inline void removeAll();               // remove all elements without deleting them
 	inline void removeDeleteAll();         // remove and delete all elements
@@ -48,15 +69,15 @@ public:
 	inline T*& operator[](size_t index);      // assign subscript operator
 									          // both versions thrown an exception if index is out of bounds
 
-protected:
-	typedef typename Container::iterator iter_t;
-	typedef typename Container::const_iterator const_iter_t;
+
+private:
+	typedef typename _CONTAINER_TYPE_::iterator iter_t;
+	typedef typename _CONTAINER_TYPE_::const_iterator const_iter_t;
 
 	T* const& at(size_t index) const;     // get a constant reference to element at given index
 										  // if index if out of bounds an exception will be thrown
 
-private:
-	Container container;
+	_CONTAINER_TYPE_ container;
 
 	// non copyable 
 	tContainer_t(const tContainer_t& other);
@@ -64,38 +85,38 @@ private:
 
 };
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline T* tContainer_t<T, Container>::back() const
 {
 	return container.back();
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline T* tContainer_t<T, Container>::front() const
 {
 	return container.front();
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline bool tContainer_t<T, Container>::isEmpty() const
 {
 	return container.empty();
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline size_t tContainer_t<T, Container>::size() const
 {
 	return container.size();
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline void tContainer_t<T, Container>::push_back(const T* val)
 {
 	container.push_back((T*)val);
 }
 
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline T* tContainer_t<T, Container>::find(const T& val) const
 {
 	tContainer_t<T, Container>::const_iter_t iter = find_if(container.begin(), container.end(), Comparator<T>(val));
@@ -104,14 +125,14 @@ inline T* tContainer_t<T, Container>::find(const T& val) const
 		// element with given value not found
 		return 0;
 	}
-	
+
 	return *iter;
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline T* tContainer_t<T, Container>::remove(const T& val)
 {
-	tContainer_t<T, Container>::iter_t iter = find_if(container.begin(), container.end(), Comparator<T>(val));
+	tContainer_t<T, Container>::const_iter_t iter = find_if(container.begin(), container.end(), Comparator<T>(val));
 	if (iter == container.end())
 	{
 		// element with given value not found
@@ -123,26 +144,24 @@ inline T* tContainer_t<T, Container>::remove(const T& val)
 	return result;
 }
 
-template <class T, class Container>
-inline bool tContainer_t<T, Container>::removeDelete(const T& val)
+_TEMPLATE_CLASS_DEFINITION_
+inline T* tContainer_t<T, Container>::removeDelete(const T& val)
 {
 	T* result = remove(val);
-	if (result == 0)
-		// element does not exist
-		return false;
-
+	// Note that if no such element was found, result == 0 and delete won't do anything
 	delete result;
-	return true;
+	return result;
+	
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline void tContainer_t<T, Container>::removeAll()
 {
 	// simply remove all elements
 	container.clear(); 
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline void tContainer_t<T, Container>::removeDeleteAll()
 {
 	tContainer_t::iter_t iter = container.begin();
@@ -156,7 +175,7 @@ inline void tContainer_t<T, Container>::removeDeleteAll()
 }
 
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline T* const& tContainer_t<T, Container>::at(size_t index) const
 {
 	if (index >= size())
@@ -164,16 +183,16 @@ inline T* const& tContainer_t<T, Container>::at(size_t index) const
 		throw out_of_range("Error: index is out of bounds");
 	}
 
-	if (typeid(container) == typeid(vector<T>))
+	if (typeid(container) == typeid(vector<T*>))
 	{
-		// use the subscript operator only on a vector<T*> type
+		// use the subscript operator only on a const vector<T*> type
 		const vector<T*>& vec = *((const vector<T*>*)&container);
 
 		// const subscript operator also returns a (const) reference
 		return vec[index];
 	}
 
-	// list<T>
+	// list<T*>
 	
 	// move the iterator to the right poistion
 	tContainer_t<T, Container>::const_iter_t iter = container.begin();
@@ -181,14 +200,14 @@ inline T* const& tContainer_t<T, Container>::at(size_t index) const
 	return *iter;
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline T* tContainer_t<T, Container>::operator[](size_t index) const
 {
 	// pointer is copied
 	return at(index);
 }
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 inline T*& tContainer_t<T, Container>::operator[](size_t index)
 {
 	// allow modifications
@@ -196,7 +215,7 @@ inline T*& tContainer_t<T, Container>::operator[](size_t index)
 }
 
 
-template <class T, class Container>
+_TEMPLATE_CLASS_DEFINITION_
 ostream& operator << (ostream& os, const tContainer_t<T, Container>& tContainer)
 {
 

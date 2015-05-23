@@ -6,6 +6,17 @@
 
 using namespace std;
 
+// 
+// NOTE: _TEMPLATE_TEMPLATE_ is defined in tContainer_t.h
+// when defined the template-template version is active
+// otherwise, the non-template version is active.
+//
+
+#ifdef _TEMPLATE_TEMPLATE_
+#define _TEMPLATE_ARG_ Container
+#else
+#define _TEMPLATE_ARG_ Container<int*, allocator<int*>>
+#endif
 
 static size_t getIndex()
 {
@@ -66,7 +77,7 @@ template <template <typename, typename> class Container>
 static void process()
 {
 
-	tContainer_t<int, Container<int*, allocator<int*>>> container;
+	tContainer_t<int, _TEMPLATE_ARG_> container;
 	bool cont = true;
 	size_t prevCount = 0;
 	size_t index;
@@ -165,9 +176,16 @@ static void process()
 			prevCount = container.size();
 			val = getInt();
 			cout << "\nremoving first occurance of value (with delete) ..." << endl;
-			container.removeDelete(*val);
+			if (container.removeDelete(*val))
+			{
+				cout << "Found, removed + deleted" << endl;
+			}
+			else
+			{
+				cout << "Not found" << endl;
+			}
 			delete val;
-			cout << prevCount - container.size() << " elements removed" << endl;
+			
 
 			break;
 		case 'D':
@@ -195,7 +213,7 @@ static void process()
 			{
 				index = getIndex();
 
-				val = (*((const tContainer_t<int, vector<int*>>*)(&container)))[index];
+				val = (*((const tContainer_t<int, _TEMPLATE_ARG_>*)(&container)))[index];
 				cout << "container[" << index << "] is a ptr to " << *val << endl;
 
 			}
@@ -227,7 +245,6 @@ static void process()
 			cout << "\nInvalid input" << endl;
 			break;
 
-
 		}
 
 	}
@@ -237,15 +254,16 @@ static void process()
 
 int main()
 {
+
 	if (isVector())
 	{
 		cout << "Selected data structure: vector, element type: int*" << endl;
 		process<vector>();
 	}
-	//else
-	//{
-	//	cout << "Selected data structure: list, element type: int*" << endl; 
-	//	process<list>();
-	//}
+	else
+	{
+		cout << "Selected data structure: list, element type: int*" << endl; 
+		process<list>();
+	}
 
 }
