@@ -43,7 +43,7 @@ public:
 
 	inline size_t size() const;				// number of elements in container
 
-	inline void push_back(const T* val);    // push to the end of the container
+	inline void push_back(T* val);			// push to the end of the container
 											// same semantics as the wrapped container's push_back method
 
 	inline T* front() const;				// return the first element
@@ -110,9 +110,9 @@ inline size_t tContainer_t<T, Container>::size() const
 }
 
 _TEMPLATE_CLASS_DEFINITION_
-inline void tContainer_t<T, Container>::push_back(const T* val)
+inline void tContainer_t<T, Container>::push_back(T* val)
 {
-	container.push_back((T*)val);
+	container.push_back(val);
 }
 
 
@@ -132,7 +132,7 @@ inline T* tContainer_t<T, Container>::find(const T& val) const
 _TEMPLATE_CLASS_DEFINITION_
 inline T* tContainer_t<T, Container>::remove(const T& val)
 {
-	tContainer_t<T, Container>::const_iter_t iter = find_if(container.begin(), container.end(), Comparator<T>(val));
+	tContainer_t<T, Container>::iter_t iter = find_if(container.begin(), container.end(), Comparator<T>(val));
 	if (iter == container.end())
 	{
 		// element with given value not found
