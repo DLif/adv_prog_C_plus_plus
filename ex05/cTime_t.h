@@ -5,8 +5,10 @@
 #include <time.h>
 #include "ObserverPattern.h"
 
+
 class cTime_t : public Subject
 {
+	friend std::ostream& operator<<(std::ostream&, const cTime_t&);
 public:
 
 	enum PrintFormat { TwentyFourHours = 1, TwelveHours};
@@ -49,6 +51,8 @@ public:
 	// if time changes to the next day, notify observing cDate_t object (if any exist)
 	// note that the new cTime_t object does not inherit current observers
 	cTime_t operator+(const cTime_t& other) const;
+
+	virtual bool operator==(const cTime_t& other) const;
 
 protected:
 
@@ -114,5 +118,6 @@ inline cTime_t cTime_t::operator+(const cTime_t& other) const
 	//
 	return cTime_t(*this) += other;
 }
+
 
 #endif

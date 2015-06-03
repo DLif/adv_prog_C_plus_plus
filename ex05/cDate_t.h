@@ -4,11 +4,13 @@
 #include "ObserverPattern.h"
 #include "cTime_t.h"
 #include "absDateImp.h"
-#include <iostream>
-#include <string>
+#include "cDateBasicImpl.h" //fix !!
+//#include <iostream>
+//#include <string>
 
 class cDate_t : public Observer
 {
+	friend std::ostream& operator<<(std::ostream&, const cDate_t&);
 public:
 
 	//
@@ -23,10 +25,12 @@ public:
 	virtual ~cDate_t();
 
 	// copy date representation, subjects are not copied
-	cDate_t& operator=(const cDate_t& other);           
+	cDate_t& operator=(const cDate_t& other);
+
+	//== operator
+	bool operator==(const cDate_t& other) const;
 	
 	virtual void setDate(size_t day, size_t month, size_t year);
-	virtual std::ostream& print(std::ostream& os, const PrintFormat& format) const;
 
 	// getters
 	size_t currentDay() const;
@@ -115,6 +119,10 @@ inline std::string cDate_t::nameOfDay() const
 inline std::string cDate_t::nameOfMonth() const
 {
 	return date->nameOfMonth();
+}
+inline bool cDate_t::operator==(const cDate_t& other) const
+{
+	return *(cDateBasicImpl*)date == *(cDateBasicImpl*)other.date;
 }
 
 #endif

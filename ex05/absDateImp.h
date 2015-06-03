@@ -1,5 +1,7 @@
 #ifndef __ABSDATEIMP__
 #define __ABSDATEIMP__
+
+
 #include <string>
 
 
@@ -27,6 +29,10 @@ public:
 
 	// prototype design pattern
 	virtual absDateImpl* clone() const = 0;
+
+	virtual std::ostream& print(std::ostream& os) const = 0;
+
+	//virtual bool operator==(const absDateImpl& other) const;
 
 };
 

@@ -11,6 +11,7 @@ void Subject::attach(Observer* observer)
 	{
 		// does not contain observer, add to vector
 		observers.push_back(observer);
+		observer->addSubject(this);
 	}
 }
 
@@ -21,6 +22,7 @@ void Subject::detach(Observer* observer)
 	{
 		// contains observer, remove
 		observers.erase(loc);
+		observer->addSubject(NULL);
 	}
 }
 
@@ -32,5 +34,14 @@ void Subject::notify()
 	{
 		// notify observer
 		(*iter)->update(this);
+		iter += 1;
 	}
+}
+
+Observer* Subject::getTestSubject(){
+	return *(observers.begin());
+}
+
+void Observer::addSubject(Subject* attachedTo){
+	subjects.push_back(attachedTo);
 }

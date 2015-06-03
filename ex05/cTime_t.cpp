@@ -1,7 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "cTime_t.h"
 
-cTime_t::~cTime_t() {}
+cTime_t::~cTime_t() {
+
+}
 
 cTime_t::cTime_t()
 {
@@ -97,4 +99,12 @@ std::ostream& cTime_t::print(std::ostream& os, const cTime_t::PrintFormat& print
 	}
 
 	return os;
+}
+
+std::ostream& operator<<(std::ostream& in, const cTime_t& toPrint){
+	return toPrint.print(in, cTime_t::PrintFormat::TwentyFourHours);
+}
+
+bool cTime_t::operator==(const cTime_t& other) const{
+	return hour == hour && minutes == minutes && seconds == seconds;
 }

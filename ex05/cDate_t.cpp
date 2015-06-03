@@ -38,3 +38,7 @@ cDate_t& cDate_t::operator=(const cDate_t& other)
 	return *this;
 	
 }
+
+std::ostream& operator<<(std::ostream& in, const cDate_t& toPrint){
+	return toPrint.date->print(in);
+}

@@ -17,6 +17,7 @@ public:
 	
 	virtual ~Observer() {}
 	virtual void update(Subject* changedSubject) = 0;
+	virtual void addSubject(Subject* attachedTo);
 
 protected:
 	// enable multiple subjects
@@ -37,6 +38,8 @@ public:
 	// detach an observer
 	// if observer does not exist nothing will be changed
 	virtual void detach(Observer*);
+
+	Observer* getTestSubject();
 
 protected:
 	// update() all observers
