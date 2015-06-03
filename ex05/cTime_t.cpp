@@ -1,9 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "cTime_t.h"
+#include <time.h>
 
-cTime_t::~cTime_t() {
-
-}
 
 cTime_t::cTime_t()
 {
@@ -60,18 +58,17 @@ cTime_t& cTime_t::operator+=(const cTime_t& other)
 	bool increaseMinute = false;
 	bool increaseHour = false;
 
-	// note: remember that all setters work modulo
 	if (seconds + other.getSeconds() > 59)
 	{
 		increaseMinute = true;
 	}
-	setSeconds(seconds + other.getSeconds());
+	setSeconds((seconds + other.getSeconds()) % 60);
 	if (minutes + other.getMinutes() + (increaseMinute ? 1 : 0) > 59)
 	{
 		increaseHour = true;
 	}
-	setMinutes(minutes + other.getMinutes() + (increaseMinute ? 1 : 0));
-	setHour(hour + other.getHour() + (increaseHour ? 1 : 0));
+	setMinutes((minutes + other.getMinutes() + (increaseMinute ? 1 : 0)) % 60);
+	setHour((hour + other.getHour() + (increaseHour ? 1 : 0)) % 24);
 
 	if (notifyObservers)
 	{
@@ -101,8 +98,8 @@ std::ostream& cTime_t::print(std::ostream& os, const cTime_t::PrintFormat& print
 	return os;
 }
 
-std::ostream& operator<<(std::ostream& in, const cTime_t& toPrint){
-	return toPrint.print(in, cTime_t::PrintFormat::TwentyFourHours);
+std::ostream& operator<<(std::ostream& os, const cTime_t& toPrint){
+	return toPrint.print(os, cTime_t::PrintFormat::TwentyFourHours);
 }
 
 bool cTime_t::operator==(const cTime_t& other) const{
