@@ -40,6 +40,7 @@ public:
 	virtual void detach(Observer*);
 
 	Observer* getTestSubject();
+	void free_observers_connection();
 
 protected:
 	// update() all observers

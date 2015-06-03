@@ -12,6 +12,10 @@ cTime_t::cTime_t()
 	setTime(current_time->tm_hour, current_time->tm_min, current_time->tm_sec);
 }
 
+cTime_t::~cTime_t(){
+	//this;
+}
+
 cTime_t::cTime_t(size_t hour, size_t minutes, size_t seconds)
 {
 	setTime(hour, minutes, seconds);
@@ -103,5 +107,5 @@ std::ostream& operator<<(std::ostream& os, const cTime_t& toPrint){
 }
 
 bool cTime_t::operator==(const cTime_t& other) const{
-	return hour == hour && minutes == minutes && seconds == seconds;
+	return hour == other.hour && minutes == other.minutes && seconds == other.seconds;
 }

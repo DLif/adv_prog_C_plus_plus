@@ -54,11 +54,10 @@ public:
 	// our date object should be notified via update()
 	void addTimeSubject(cTime_t* timeObj);
 
-protected:
-
 	// bridge design pattern
 	// inner implementation
 	// 
+
 	absDateImpl* date;
 
 

@@ -12,8 +12,8 @@ static int getAnInteger(const string& toPrintAddition, const size_t limit_up, co
 	int numToRead;
 	cout << "\nChoose the number of " << toPrintAddition << ": " << endl;
 	if (!(cin >> numToRead) || numToRead > limit_up || numToRead < limit_down){
-		cout << "\nInvalid input! \nWill be set as 0" << endl;
-		numToRead = 0;
+		cout << "\nInvalid input! \nWill be set as " << limit_down << endl;
+		numToRead = limit_down;
 	}
 	// clear rest of the line 
 	cin.clear();
@@ -28,9 +28,9 @@ cDate_t* find_date(vector<cDate_t*>& dateVector){
 	int second = getAnInteger("the year", INT_MAX,1900);
 	cDate_t newDate = cDate_t(hour, minute, second);
 
-	for (cDate_t* date : dateVector){
-		if (*(cDateBasicImpl*)date == *(cDateBasicImpl*)&newDate){
-			return date;
+	for (cDate_t* date_b : dateVector){
+		if (*(cDateBasicImpl*)(date_b->date) == *(cDateBasicImpl*)(newDate.date)){
+			return date_b;
 		}
 	}
 	cout << "\nNo such date" << endl;
@@ -48,7 +48,7 @@ cTime_t* find_time(vector<cTime_t*> timeVector){
 			return time;
 		}
 	}
-	cout << "\nNo such date" << endl;
+	cout << "\nNo such time" << endl;
 	return NULL;
 }
 
@@ -98,9 +98,12 @@ int main()
 		case 's':{
 			cout << "\nGive the parameters to get the observer(Date)" << endl;
 			cDate_t* observer = find_date(dateVector);
+			if (observer == NULL){
+				break;
+			}
 			cout << "\nGive the parameters to get the subject(time)" << endl;
 			cTime_t* subject = find_time(timeVector);
-			if (subject ==NULL || observer == NULL){
+			if (subject == NULL){
 				break;
 			}
 			subject->attach(observer);
@@ -110,9 +113,12 @@ int main()
 		case 'r':{
 			cout << "\nGive the parameters to get the observer(Date)" << endl;
 			cDate_t* observer = find_date(dateVector);
+			if (observer == NULL){
+				break;
+			}
 			cout << "\nGive the parameters to get the subject(time)" << endl;
 			cTime_t* subject = find_time(timeVector);
-			if (subject == NULL || observer == NULL){
+			if (subject == NULL){
 				break;
 			}
 			subject->detach(observer);
@@ -123,15 +129,25 @@ int main()
 			cout << "\nA+=B" << endl;
 			cout << "\ngive the parameters to get A" << endl;
 			cTime_t* left = find_time(timeVector);
-			cout << "\ngive the parameters to get B" << endl;
-			cTime_t* right = find_time(timeVector);
-			if (left == NULL || right == NULL){
+			if (left == NULL){
 				break;
 			}
-			cout << "\nThe subject before addition: " << *(cDate_t*)(left->getTestSubject()) << endl;
-			*left += *right;
-			cout << "\nThe reasulted time is : " << *left << endl;
-			cout << "\nThe subject after addition: " << *(cDate_t*)(left->getTestSubject()) << endl;
+			cout << "\ngive the parameters to get B" << endl;
+			cTime_t* right = find_time(timeVector);
+			if (right == NULL){
+				break;
+			}
+
+			if (left->getTestSubject() != NULL){
+				cout << "\nThe subject before addition: " << *(cDate_t*)(left->getTestSubject()) << endl;
+				*left += *right;
+				cout << "\nThe reasulted time is : " << *left << endl;
+				cout << "\nThe subject after addition: " << *(cDate_t*)(left->getTestSubject()) << endl;
+			}
+			else{
+				*left += *right;
+			}
+			
 			break;
 		}
 		case 'q':{
@@ -145,11 +161,11 @@ int main()
 	}
 
 	//clear vectors
-	for (cTime_t* time : timeVector){
-		delete time;
-	}
 	for (cDate_t* date : dateVector){
 		delete date;
+	}
+	for (cTime_t* time : timeVector){
+		delete time;
 	}
 
 	return 0;

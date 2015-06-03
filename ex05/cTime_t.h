@@ -31,7 +31,7 @@ public:
 	cTime_t(size_t hour, size_t minutes, size_t seconds); 
 														  
 	
-	virtual ~cTime_t() {};
+	virtual ~cTime_t();
 	
 	// set time, all the setters will thrown an exception if input is invalid
 	// input should hold:

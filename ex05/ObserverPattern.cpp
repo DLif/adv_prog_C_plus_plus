@@ -39,7 +39,16 @@ void Subject::notify()
 }
 
 Observer* Subject::getTestSubject(){
+	if (observers.size() <= 0){
+		return NULL;
+	}
 	return *(observers.begin());
+}
+
+void Subject::free_observers_connection(){
+	for (Observer* observer : observers){
+		//observer->remove_subject_from_list();
+	}
 }
 
 void Observer::addSubject(Subject* attachedTo){
