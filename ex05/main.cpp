@@ -4,16 +4,18 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <exception>
+#include <algorithm>
 
 using namespace std;
 
-static int getAnInteger(const string& toPrintAddition, const size_t limit_up, const size_t limit_down)
+static size_t getAnInteger(const string& toPrintAddition)
 {
-	int numToRead;
-	cout << "\nChoose the number of " << toPrintAddition << ": " << endl;
-	if (!(cin >> numToRead) || numToRead > limit_up || numToRead < limit_down){
-		cout << "\nInvalid input! \nWill be set as " << limit_down << endl;
-		numToRead = limit_down;
+	size_t numToRead;
+	cout << "\nEnter a " << toPrintAddition << ": " << endl;
+	if (!(cin >> numToRead)){
+		cout << "\nInvalid input! \nWill be set as " << 0 << endl;
+		numToRead = 0;
 	}
 	// clear rest of the line 
 	cin.clear();
@@ -22,43 +24,73 @@ static int getAnInteger(const string& toPrintAddition, const size_t limit_up, co
 	return numToRead;
 }
 
-cDate_t* find_date(vector<cDate_t*>& dateVector){
-	int hour = getAnInteger("the day", 31,0);
-	int minute = getAnInteger("the month", 12,1);
-	int second = getAnInteger("the year", INT_MAX,1900);
-	cDate_t newDate = cDate_t(hour, minute, second);
-
-	for (cDate_t* date_b : dateVector){
-		if (*(cDateBasicImpl*)(date_b->date) == *(cDateBasicImpl*)(newDate.date)){
-			return date_b;
-		}
+static cDate_t* find_date(vector<cDate_t*>& dateVector, size_t index){
+	if (dateVector.size() <= index){
+		cout << "\nIndex out of bounds" << endl;
+		return NULL;
 	}
-	cout << "\nNo such date" << endl;
-	return NULL;
+	
+	return dateVector[index];
 }
 
-cTime_t* find_time(vector<cTime_t*> timeVector){
-	int hour = getAnInteger("the hour", 23,0);
-	int minute = getAnInteger("the minute", 60,0);
-	int second = getAnInteger("the second", 60,0);
-	cTime_t newTime = cTime_t(hour, minute, second);
-
-	for (cTime_t* time : timeVector){
-		if (*time == newTime){
-			return time;
-		}
+static cTime_t* find_time(vector<cTime_t*> timeVector, size_t index){
+	
+	if (timeVector.size() <= index)
+	{
+		cout << "\nIndex out of bounds" << endl;
+		return NULL;
 	}
-	cout << "\nNo such time" << endl;
-	return NULL;
+	
+	return timeVector[index];
 }
 
 
+struct Comparator
+{
+
+	cTime_t* timeObj;
+	cDate_t* dateObj;
+	Comparator(cTime_t* timeObj, cDate_t* dateObj)
+	{
+		this->timeObj = timeObj;
+		this->dateObj = dateObj;
+	}
+
+	bool operator()(pair<cTime_t*, cDate_t*>* val)
+	{
+		if (val->first == timeObj && val->second == dateObj) return true;
+		return false;
+	}
+
+};
+
+
+struct ComparatorFirstValue
+{
+
+	cTime_t* timeObj;
+	
+	ComparatorFirstValue(cTime_t* timeObj)
+	{
+		this->timeObj = timeObj;
+		
+	}
+
+	bool operator()(pair<cTime_t*, cDate_t*>* val)
+	{
+		if (val->first == timeObj) return true;
+		return false;
+	}
+
+};
 
 int main()
 {
 	bool cont = true;
 	vector<cDate_t*> dateVector;
 	vector<cTime_t*> timeVector;
+	vector<pair<cTime_t*, cDate_t*>*> subjectToObserver;
+	typedef vector<pair<cTime_t*, cDate_t*>*>::iterator pair_iter;
 	char c;
 
 	//dateObj.addTimeSubject(&timeObj);
@@ -68,8 +100,8 @@ int main()
 	while (cont)
 	{
 
-		cout << "\nTime (make new time) | Date (make new date) | set date to time | remove date from time | add times |  quit" << endl;
-		cout << "\nAny time or date objects that are used for operations (set,add,etc.) should be made by Time or Date, accordingly." << endl;
+		cout << "\nTime (make new time) | Date (make new date) | set date to time | remove date from time | add times | Print date info |  quit" << endl;
+		cout << "\nAny time or date objects that are used for operations (set,add,etc.) should be created by Time or Date, accordingly." << endl;
 		cin >> c;
 		// clear rest of the line 
 		cin.clear();
@@ -77,77 +109,158 @@ int main()
 		switch (c)
 		{
 		case 'T': {
-			int hour = getAnInteger("the hour", 23,0);
-			int minute = getAnInteger("the minute", 60,0);
-			int second = getAnInteger("the second", 60,0);
-			cTime_t* newTime = new cTime_t(hour, minute, second);
-			timeVector.push_back(newTime);
-			cout << "\nnew Time object made " << *newTime << endl;
+			size_t hour = getAnInteger("hour [0-23]");
+			size_t minute = getAnInteger("minute [0-59]");
+			size_t second = getAnInteger("seconds [0-59]");
+			try{
+
+				cTime_t* newTime = new cTime_t(hour, minute, second);
+				timeVector.push_back(newTime);
+				cout << "\nnew cTime_t object made: ";
+				newTime->print(cout, cTime_t::PrintFormat::TwelveHours) << endl;
+			}
+			catch (exception& ex)
+			{
+				cout << ex.what() << endl << endl;
+			}
+		
 
 			break;
-			}
+		}
 		case 'D': {
-			int hour = getAnInteger("the day", 31,0);
-			int minute = getAnInteger("the month", 12,1);
-			int second = getAnInteger("the year", INT_MAX,1900); //TODO -fix limit issue later
-			cDate_t* newDate = new cDate_t(hour, minute, second);
-			dateVector.push_back(newDate);
-			cout << "\nnew Date object made " << *newDate << endl;
+			size_t day = getAnInteger("day [1-31]");
+			size_t month = getAnInteger("month [1-12]");
+			size_t year = getAnInteger("year >= 1900");
+			try
+			{
+				cDate_t* newDate = new cDate_t(day, month, year);
+				dateVector.push_back(newDate);
+				cout << "\nnew cDate_t object made: ";
+				newDate->print(cout, "EU-TEXT") << endl;
+			}
+			catch (exception& ex)
+			{
+				cout << ex.what() << endl << endl;
+			}
 			break;
 		}
 		case 's':{
-			cout << "\nGive the parameters to get the observer(Date)" << endl;
-			cDate_t* observer = find_date(dateVector);
-			if (observer == NULL){
-				break;
+			try
+			{
+				
+				cDate_t* observer = find_date(dateVector, getAnInteger("index of date"));
+				if (observer == NULL){
+					break;
+				}
+
+				cTime_t* subject = find_time(timeVector, getAnInteger("index of time"));
+				if (subject == NULL){
+					break;
+				}
+				observer->setSubject(subject);
+				cout << "Date: ";
+				observer->print(cout, "EU-TEXT");
+				cout << " now observers time object: ";
+				subject->print(cout, cTime_t::PrintFormat::TwelveHours) << endl;
+				subjectToObserver.push_back(new pair<cTime_t*, cDate_t*>(subject, observer));
 			}
-			cout << "\nGive the parameters to get the subject(time)" << endl;
-			cTime_t* subject = find_time(timeVector);
-			if (subject == NULL){
-				break;
+			catch (exception& ex)
+			{
+				cout << ex.what() << endl << endl;
 			}
-			subject->attach(observer);
-			cout << "\nconnection made" << endl;
+
 			break;
 		}
 		case 'r':{
-			cout << "\nGive the parameters to get the observer(Date)" << endl;
-			cDate_t* observer = find_date(dateVector);
-			if (observer == NULL){
-				break;
+			try
+
+			{
+				cDate_t* observer = find_date(dateVector, getAnInteger("index of date"));
+				if (observer == NULL){
+					break;
+				}
+
+				cTime_t* subject = find_time(timeVector, getAnInteger("index of time"));
+				if (subject == NULL){
+					break;
+				}
+
+				pair_iter iter;
+				if ((iter = find_if(subjectToObserver.begin(), subjectToObserver.end(), Comparator(subject, observer))) == subjectToObserver.end())
+				{
+					cout << "Given date is not observing given time" << endl;
+					break;
+				}
+				// this will also detach from subject
+				observer->setSubject(0);
+				cout << "\nconnection removed" << endl;
+
+				subjectToObserver.erase(iter);
 			}
-			cout << "\nGive the parameters to get the subject(time)" << endl;
-			cTime_t* subject = find_time(timeVector);
-			if (subject == NULL){
-				break;
+			catch (exception& ex)
+			{
+				cout << ex.what() << endl;
 			}
-			subject->detach(observer);
-			cout << "\nconnection removed" << endl;
 			break;
 		}
 		case 'a':{
-			cout << "\nA+=B" << endl;
-			cout << "\ngive the parameters to get A" << endl;
-			cTime_t* left = find_time(timeVector);
-			if (left == NULL){
-				break;
-			}
-			cout << "\ngive the parameters to get B" << endl;
-			cTime_t* right = find_time(timeVector);
-			if (right == NULL){
-				break;
-			}
+			try
+			{
+				cout << "\nA+=B" << endl;
+				
+				cTime_t* left = find_time(timeVector, getAnInteger("index of A time"));
+				if (left == NULL){
+					break;
+				}
+				
+				cTime_t* right = find_time(timeVector, getAnInteger("index of B time"));
+				if (right == NULL){
+					break;
+				}
 
-			if (left->getTestSubject() != NULL){
-				cout << "\nThe subject before addition: " << *(cDate_t*)(left->getTestSubject()) << endl;
-				*left += *right;
-				cout << "\nThe reasulted time is : " << *left << endl;
-				cout << "\nThe subject after addition: " << *(cDate_t*)(left->getTestSubject()) << endl;
+				pair_iter iter;
+				if ((iter = find_if(subjectToObserver.begin(), subjectToObserver.end(), ComparatorFirstValue(left))) == subjectToObserver.end())
+				{
+					cout << "A does not have observers, select a time that is observed" << endl;
+					*left += *right;
+				}
+				else
+				{
+
+					cout << "\nThe subject before addition: ";
+					((*iter)->second)->print(cout, "EU") << endl;
+					*left += *right;
+					cout << "\nThe subject after addition: ";
+					((*iter)->second)->print(cout, "EU") << endl;
+				}
+
+				cout << "\nThe result time is : ";
+				left->print(cout, cTime_t::PrintFormat::TwelveHours) << endl;
 			}
-			else{
-				*left += *right;
+			catch (exception& ex)
+			{
+				cout << ex.what() << endl;
 			}
 			
+			break;
+		}
+		case 'P':{
+
+			cDate_t* observer = find_date(dateVector, getAnInteger("index of date"));
+			if (observer == NULL){
+				break;
+			}
+			cout << "Date: ";
+			observer->print(cout, "EU-TEXT") << endl;
+			cout << "Day in week: " << observer->currentDay() << endl;
+			cout << "Current month: " << observer->currentMonth() << endl;
+			cout << "Current year: " << observer->currentYear() << endl;
+			cout << "Day of year: " << observer->dayOfYear() << endl;
+			cout << "Day of month: " << observer->dayOfMonth() << endl;
+			cout << "Is leap year: " << observer->isLeapYear() << endl;
+			cout << "Name of day: " << observer->nameOfDay() << endl;
+			cout << "Name of month: " << observer->nameOfMonth() << endl << endl;;
+
 			break;
 		}
 		case 'q':{

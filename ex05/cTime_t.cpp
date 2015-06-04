@@ -3,6 +3,10 @@
 #include <time.h>
 
 
+cTime_t::~cTime_t(){
+	// default implementation suffices
+}
+
 cTime_t::cTime_t()
 {
 	// get current time
@@ -12,16 +16,12 @@ cTime_t::cTime_t()
 	setTime(current_time->tm_hour, current_time->tm_min, current_time->tm_sec);
 }
 
-cTime_t::~cTime_t(){
-	//this;
-}
-
 cTime_t::cTime_t(size_t hour, size_t minutes, size_t seconds)
 {
 	setTime(hour, minutes, seconds);
 }
 
-cTime_t::cTime_t(const cTime_t& other) : Subject()
+cTime_t::cTime_t(const cTime_t& other)
 {
 	// note that the observers are not copied! Only time representation is copied
 	setTime(other.hour, other.minutes, other.seconds);
@@ -79,7 +79,7 @@ cTime_t& cTime_t::operator+=(const cTime_t& other)
 		// notify all observers that a day has passed
 		notify();
 	}
-	
+
 	return *this;
 
 }
@@ -97,15 +97,10 @@ std::ostream& cTime_t::print(std::ostream& os, const cTime_t::PrintFormat& print
 		break;
 	case cTime_t::PrintFormat::TwentyFourHours:
 		os << hour << ":" << minutes << ":" << seconds;
+
+		break;
 	}
 
 	return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const cTime_t& toPrint){
-	return toPrint.print(os, cTime_t::PrintFormat::TwentyFourHours);
-}
-
-bool cTime_t::operator==(const cTime_t& other) const{
-	return hour == other.hour && minutes == other.minutes && seconds == other.seconds;
-}
