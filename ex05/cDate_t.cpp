@@ -123,7 +123,7 @@ std::ostream& cDate_t::print(std::ostream& os, const std::string& format) const
 }
 
 
-void cDate_t::validateDate(size_t day, size_t month, size_t year)
+void cDate_t::validateDate(size_t day, size_t month, size_t year) const
 {
 	if (day < 1 || day > 31)
 		throw std::invalid_argument("Error: invalid day, day should be in range 1-31");

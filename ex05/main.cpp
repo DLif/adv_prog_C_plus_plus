@@ -117,7 +117,7 @@ int main()
 				cTime_t* newTime = new cTime_t(hour, minute, second);
 				timeVector.push_back(newTime);
 				cout << "\nnew cTime_t object made: ";
-				newTime->print(cout, cTime_t::PrintFormat::TwelveHours) << endl;
+				newTime->print(cout, "TwelveHours") << endl;
 			}
 			catch (exception& ex)
 			{
@@ -161,7 +161,7 @@ int main()
 				cout << "Date: ";
 				observer->print(cout, "EU-TEXT");
 				cout << " now observers time object: ";
-				subject->print(cout, cTime_t::PrintFormat::TwelveHours) << endl;
+				subject->print(cout,"TwelveHours") << endl;
 				subjectToObserver.push_back(new pair<cTime_t*, cDate_t*>(subject, observer));
 			}
 			catch (exception& ex)
@@ -235,7 +235,7 @@ int main()
 				}
 
 				cout << "\nThe result time is : ";
-				left->print(cout, cTime_t::PrintFormat::TwelveHours) << endl;
+				left->print(cout, "TwelveHours") << endl;
 			}
 			catch (exception& ex)
 			{

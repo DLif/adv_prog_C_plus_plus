@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "cTime_t.h"
 #include <time.h>
+#include <stdexcept>
 
 
 cTime_t::~cTime_t(){
@@ -84,21 +85,24 @@ cTime_t& cTime_t::operator+=(const cTime_t& other)
 
 }
 
-std::ostream& cTime_t::print(std::ostream& os, const cTime_t::PrintFormat& printFormat) const
+std::ostream& cTime_t::print(std::ostream& os, const std::string& printFormat) const
 {
-	switch (printFormat)
+
+	if (printFormat == "TwelveHours")
 	{
-	case cTime_t::PrintFormat::TwelveHours:
 		os << (hour == 12 ? 12 : hour % 12) << ":" << minutes << ":" << seconds;
 
 		if (hour >= 12) os << " PM";
 		else            os << " AM";
 
-		break;
-	case cTime_t::PrintFormat::TwentyFourHours:
+	}
+	else if (printFormat == "TwentyFourHours"){
 		os << hour << ":" << minutes << ":" << seconds;
 
-		break;
+	}
+	else
+	{
+		throw std::invalid_argument("Error: invalid print format");
 	}
 
 	return os;

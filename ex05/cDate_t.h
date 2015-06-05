@@ -76,20 +76,20 @@ protected:
 	// plus, day must be a valid day in given month
 	// if input is invalid, throwns an exception
 
-	virtual void validateDate(size_t day, size_t month, size_t year);
+	virtual void validateDate(size_t day, size_t month, size_t year) const;
 
-	size_t day;      // holds values between 1-31
-	size_t month;    // holds values between 1-12
-	size_t year;     // holds years 1900+
-
-private:
 	// create a tm struct representing given date
 	// note that the struct is statically allocated and should not be freed
 	static struct tm* createDateRepresentation(size_t day, size_t month, size_t year);
 
 	// create a tm struct representing current date
 	// note that the struct is statically allocated and should not be freed
-	struct tm* cDate_t::createCurrentDateRepresentation() const;
+	struct tm* createCurrentDateRepresentation() const;
+
+	size_t day;      // holds values between 1-31
+	size_t month;    // holds values between 1-12
+	size_t year;     // holds years 1900+
+
 
 };
 

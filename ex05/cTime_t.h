@@ -11,15 +11,13 @@ class cTime_t : public Subject
 
 public:
 
-	enum PrintFormat { TwentyFourHours = 1, TwelveHours };
-
 	cTime_t();                                // construct with current time
 
 	cTime_t(const cTime_t& other);            // copies the time representation
-	// observers are NOT copied
+											  // observers are NOT copied
 
 	cTime_t& operator=(const cTime_t& other); // copies the time representation
-	// observers are NOT copied
+											  // observers are NOT copied
 
 
 	// construct cTime_t object from given time
@@ -33,7 +31,7 @@ public:
 
 	virtual ~cTime_t();
 
-	// set time, all the setters will thrown an exception if input is invalid
+	// set time, all the setters will throw an exception if input is invalid
 	// input should hold:
 	//		0 <= hour < 24
 	//		0 <= minutes < 59
@@ -49,7 +47,10 @@ public:
 	size_t getSeconds() const;
 
 	// output time representation to given output-stream
-	virtual std::ostream& print(std::ostream& os, const PrintFormat& printFormat) const;
+	// print formats:
+	//      TwentyFourHours - 24 hours format
+	//      TwelveHours     - 12 hours format (with AM/PM)
+	virtual std::ostream& print(std::ostream& os, const std::string& printFormat) const;
 
 	// perform addition
 	// if time changes to the next day, notify observing cDate_t object(s) (if any exist)
@@ -60,7 +61,7 @@ public:
 
 protected:
 
-	// methods checks whether addition with other cTime_t object
+	// method checks whether addition with other cTime_t object
 	// will advance the day by one, returns true if so, otherwise returns false
 	bool cTime_t::willAdditionAdvanceDay(const cTime_t& other) const;
 
