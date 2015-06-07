@@ -12,3 +12,6 @@ std::string NotificationArgument::getNotificationType() const
 
 NotificationArgument::NotificationArgument(const std::string& type, const std::string& message)
 	: type(type), message(message) {};
+
+NotificationArgument::~NotificationArgument()
+{};

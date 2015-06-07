@@ -22,6 +22,8 @@ public:
 	// e.g. "new service price is: 100 shekels"
 	std::string getMessage()          const;
 
+	virtual ~NotificationArgument();
+
 protected:
 	std::string type;
 	std::string message;
