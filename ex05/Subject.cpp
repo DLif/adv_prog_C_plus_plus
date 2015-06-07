@@ -6,7 +6,14 @@
 
 Subject::Subject() {}
 
-Subject::~Subject() {};
+// disattach all observers from this subject
+Subject::~Subject() 
+{
+	for (Observer* obs : observers)
+	{
+		obs->setSubject(0);
+	}
+};
 
 void Subject::attach(Observer* observer)
 {

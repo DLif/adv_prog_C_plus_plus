@@ -85,6 +85,21 @@ cTime_t& cTime_t::operator+=(const cTime_t& other)
 
 }
 
+
+cTime_t cTime_t::operator+(const cTime_t& other)
+{
+	bool notifyObservers = willAdditionAdvanceDay(other);
+	cTime_t result = (cTime_t)(*this) += other;
+	if (notifyObservers)
+	{
+		// notify all observers that a day has passed
+		notify();
+	}
+
+	return result;
+
+}
+
 std::ostream& cTime_t::print(std::ostream& os, const std::string& printFormat) const
 {
 

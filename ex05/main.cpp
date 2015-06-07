@@ -100,7 +100,7 @@ int main()
 	while (cont)
 	{
 
-		cout << "\nTime (make new time) | Date (make new date) | set date to time | remove date from time | add times | Print date info |  quit" << endl;
+		cout << "\nTime (make new time) | Date (make new date) | set date to time | remove date from time | add times(+=) | Add times(+) | Print date info |  quit" << endl;
 		cout << "\nAny time or date objects that are used for operations (set,add,etc.) should be created by Time or Date, accordingly." << endl;
 		cin >> c;
 		// clear rest of the line 
@@ -242,6 +242,49 @@ int main()
 				cout << ex.what() << endl;
 			}
 			
+			break;
+		}
+
+		case 'A':{
+			try
+			{
+				cout << "\nA + B" << endl;
+				cTime_t resultTime;
+
+				cTime_t* left = find_time(timeVector, getAnInteger("index of A time"));
+				if (left == NULL){
+					break;
+				}
+
+				cTime_t* right = find_time(timeVector, getAnInteger("index of B time"));
+				if (right == NULL){
+					break;
+				}
+
+				pair_iter iter;
+				if ((iter = find_if(subjectToObserver.begin(), subjectToObserver.end(), ComparatorFirstValue(left))) == subjectToObserver.end())
+				{
+					cout << "A does not have observers, select a time that is observed" << endl;
+					resultTime = *left +  *right;
+				}
+				else
+				{
+
+					cout << "\nThe subject before addition: ";
+					((*iter)->second)->print(cout, "EU") << endl;
+					resultTime = *left +  *right;
+					cout << "\nThe subject after addition: ";
+					((*iter)->second)->print(cout, "EU") << endl;
+				}
+
+				cout << "\nThe result time is : ";
+				resultTime.print(cout, "TwelveHours") << endl;
+			}
+			catch (exception& ex)
+			{
+				cout << ex.what() << endl;
+			}
+
 			break;
 		}
 		case 'P':{

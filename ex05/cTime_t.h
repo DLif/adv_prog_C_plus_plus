@@ -56,6 +56,9 @@ public:
 	// if time changes to the next day, notify observing cDate_t object(s) (if any exist)
 	cTime_t& operator+=(const cTime_t& other);
 
+	// same as above
+	cTime_t operator+(const cTime_t& other);
+
 	// returns true iff represented time is the same
 	bool operator==(const cTime_t& other) const;
 
