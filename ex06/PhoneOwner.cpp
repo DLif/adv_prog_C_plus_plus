@@ -22,7 +22,7 @@ void PhoneOwner::update(Subject* subject, NotificationArgument& notificationArgu
 	{
 		
 		
-		std::cout << (getClientType() == PhoneClient::PhoneClientType::Mobile ? "Mobile phone owner " : "Stationary phone owner ")
+		std::cout << (getClientType() == PhoneClient::PhoneClientType::Mobile ? "\nMobile phone owner " : "Stationary phone owner ")
 				<< getName()
 				<< " with phone number "
 				<< getNumber()
@@ -33,4 +33,12 @@ void PhoneOwner::update(Subject* subject, NotificationArgument& notificationArgu
 				<< std::endl;
 		
 	}
+}
+
+void PhoneOwner::printOwner(){
+	std::cout << (getClientType() == PhoneClient::PhoneClientType::Mobile ? "\nMobile phone owner " : "\nStationary phone owner ")
+		<< getName()
+		<< "\nwith phone number "
+		<< getNumber()
+		<< std::endl;
 }

@@ -24,6 +24,9 @@ public:
 	// observer pattern update method
 	void update(Subject* subject, NotificationArgument& notificationArgument);
 
+	//print object to stdout
+	void printOwner();
+
 protected:
 
 	// bridge (holds specific phone type implementation, e.g. mobile phone or stationary phone specific aspects)
