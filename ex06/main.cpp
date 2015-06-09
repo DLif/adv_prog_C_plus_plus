@@ -37,7 +37,7 @@ static PhoneClient::PhoneClientType getMobileKind()
 {
 	char c;
 	cout << "\nEnter a M for Mobile or S for Stationary phone client: " << endl;
-	if (!(cin >> c) || (c!='M' && c!='S')){
+	if (!(cin >> c) || (c != 'M' && c != 'S')){
 		cout << "\nInvalid input! \nWill be set as Stationary" << endl;
 		c = 'S';
 	}
@@ -45,7 +45,7 @@ static PhoneClient::PhoneClientType getMobileKind()
 	cin.clear();
 	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-	if (c = 'M'){
+	if (c == 'M'){
 		return PhoneClient::PhoneClientType::Mobile;
 	}
 	else {
@@ -60,13 +60,13 @@ int main()
 	char c;
 
 	TC& company = TC::getTelephoneCompany();
-	cout << "\nTelephone company initialized" << endl;
+	cout << "\nTelephone company fetched (singleton)" << endl;
 
 	cout << "\nPlease write the first letter of the method you wish to call from the following list: " << endl;
 
 	while (cont){
-		cout << "\nPhoneOwner (make new PoneOwner) | upgrade mobilies (send notifications) | change price |  quit" << endl;
-	
+		cout << "\nPhoneOwner (make new PhoneOwner) | upgrade mobiles (send notifications) | change price (send notifications) |  quit" << endl;
+
 		cin >> c;
 		// clear rest of the line 
 		cin.clear();
@@ -79,7 +79,7 @@ int main()
 				getAString("Phone owner name"));
 
 			phoneOwnersVector.push_back(new_owner);
-			cout << "\nnew PhoneOwner object made: ";
+			cout << "\nnew PhoneOwner object made: " << endl;
 			new_owner->printOwner();
 
 			break;

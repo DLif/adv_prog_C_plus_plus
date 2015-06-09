@@ -25,13 +25,13 @@ public:
 	void update(Subject* subject, NotificationArgument& notificationArgument);
 
 	//print object to stdout
-	void printOwner();
+	void printOwner() const;
 
 protected:
 
 	// bridge (holds specific phone type implementation, e.g. mobile phone or stationary phone specific aspects)
 	PhoneClient* impl;
-	
+
 private:
 
 	// Phone owner name and id
